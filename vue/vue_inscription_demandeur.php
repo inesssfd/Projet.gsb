@@ -10,6 +10,16 @@
 <body>
     <table>
         <h1>Inscription demandeur</h1>
+        <?php
+        // Afficher les messages d'erreur s'il y en a dans l'URL
+        if (isset($_GET['error'])) {
+            echo "<ul>";
+            foreach ($_GET['error'] as $error) {
+                echo "<li style='color: red;'>" . htmlspecialchars($error) . "</li>";
+            }
+            echo "</ul>";
+        }
+        ?>
         <form method="POST" action="..\controleur\controleur_inscription_demandeur.php" enctype="application/x-www-form-urlencoded">
             <tr>
                 <td>Nom de demandeur: </td>

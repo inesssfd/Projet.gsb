@@ -9,7 +9,7 @@
 </head>
 <body>
 <table>
-<form method='POST' action='../controleur/controleur_connexion_proprietaire.php' name='annuaire' enctype='application/x-www-form-urlencoded'>
+<form method='POST' action='../controleur/controleur_prop.php' name='annuaire' enctype='application/x-www-form-urlencoded'>
     <h1>Connexion</h1>
 <tr>
 	<td>Login : </td>
