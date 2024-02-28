@@ -22,7 +22,8 @@
             echo "</ul>";
         }
         ?>
-        <form method="POST" action="..\controleur\controleur_prop.php" enctype="application/x-www-form-urlencoded">
+        <form method="POST" action="..\controleur\controleur_proprietaire.php" enctype="application/x-www-form-urlencoded">
+        <input type="hidden" name="action" value="inscription">
             <div class="input-wrapper">
                 <label for="nom_prop">Nom :</label>
                 <input type='text' name='nom_prop' id="nom_prop" size='20'>

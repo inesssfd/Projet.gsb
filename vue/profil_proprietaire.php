@@ -2,9 +2,11 @@
 // Inclure le contrôleur pour obtenir les détails du propriétaire
 include_once '../controleur/controleur_profil_proprietaire.php';
 include_once '../controleur/c_loyer.php';
+// Créer une instance de ProprietaireController
+$controller = new ProprietaireController();
 
-// Appel de la fonction pour obtenir les détails du propriétaire
-$details_proprietaire = getDetailsProprietaire();
+// Appel de la méthode pour obtenir les détails du propriétaire
+$details_proprietaire = $controller->getDetailsProprietaire();
 ?>
 <!DOCTYPE html>
 <html lang="en">

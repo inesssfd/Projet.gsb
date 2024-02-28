@@ -20,7 +20,8 @@
             echo "</ul>";
         }
         ?>
-        <form method="POST" action="..\controleur\controleur_inscription_demandeur.php" enctype="application/x-www-form-urlencoded">
+        <form method="POST" action="..\controleur\controleur_demandeurs.php" enctype="application/x-www-form-urlencoded">
+            <input type="hidden" name="action" value="inscription"> <!-- Champ caché pour spécifier l'action d'inscription -->
             <tr>
                 <td>Nom de demandeur: </td>
                 <td><input type='text' name='nom_demandeur' size='20'></td>
@@ -38,11 +39,9 @@
                 <td><input type='text' name='cp_demandeur' size='20' value=''></td>
             </tr>
             <tr>
-            <tr>
-            <td>Téléphone : </td>
-           <td><input type='text' name='tel_demandeur' size='20' value=''></td>
-             </tr>
-
+                <td>Téléphone : </td>
+                <td><input type='text' name='tel_demandeur' size='20' value=''></td>
+            </tr>
             <tr>
                 <td>Login :</td>
                 <td><input type='text' name='login' size='20' value=''></td>

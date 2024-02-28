@@ -242,7 +242,7 @@ function supprimerVisite(id_visite) {
                         // Suppression réussie côté serveur
                         console.log('Propriétaire supprimé avec succès.');
                         // Redirigez ou effectuez d'autres actions nécessaires
-                        window.location.href = 'index.php';
+                        window.location.href = '../laall.php';
                     } else {
                         // Gérez d'autres réponses ou erreurs
                         alert('Erreur: ' + response);

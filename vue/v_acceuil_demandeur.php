@@ -1,7 +1,7 @@
 <?php
-// Inclure la classe Appartement ici (assurez-vous que le chemin est correct)
+
 include_once '../modele/modele_app.php';
-include_once '..//controleur/DemandeurController.php';
+include_once '../controleur/DemandeurController.php';
 include_once '../controleur/controleur_visite.php';
 
 // Récupérer la liste des appartements

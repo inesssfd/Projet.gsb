@@ -34,9 +34,40 @@ session_start();
 
     <label for="rue">Rue:</label>
     <input type="text" id="rue" name="rue" required>
-
     <label for="arrondisement">Arrondissement:</label>
-    <input type="text" id="arrondisement" name="arrondisement" required>
+<select id="arrondisement" name="arrondisement" required>
+    <?php
+    // Tableau des arrondissements de Paris avec les codes postaux
+    $arrondissements_paris = array(
+        "75001" => "1er", 
+        "75002" => "2e", 
+        "75003" => "3e", 
+        "75004" => "4e", 
+        "75005" => "5e", 
+        "75006" => "6e", 
+        "75007" => "7e", 
+        "75008" => "8e", 
+        "75009" => "9e", 
+        "75010" => "10e",
+        "75011" => "11e", 
+        "75012" => "12e", 
+        "75013" => "13e", 
+        "75014" => "14e", 
+        "75015" => "15e", 
+        "75016" => "16e", 
+        "75017" => "17e", 
+        "75018" => "18e", 
+        "75019" => "19e", 
+        "75020" => "20e"
+    );
+
+    // Boucle pour générer les options de la liste déroulante
+    foreach ($arrondissements_paris as $code_postal => $arrondissement) {
+        echo "<option value=\"$code_postal\">$code_postal - $arrondissement</option>";
+    }
+    ?>
+</select>
+
 
     <label for="etage">Étage:</label>
     <input type="text" id="etage" name="etage" required>
