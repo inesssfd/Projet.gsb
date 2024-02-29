@@ -9,13 +9,20 @@ body {
     background-color: #f4f4f4;
 }
 
-/* Style the container for centering */
 .container {
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background-color: #f4f4f4; /* Adjust background color */
+    background-color: #f4f4f4;
+}
+
+.form-container {
+    max-width: 600px;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
 .center-form {

@@ -229,7 +229,7 @@ function supprimerVisite(id_visite) {
         var xhr = new XMLHttpRequest();
         
         // Configurez la requête
-        xhr.open('POST', '../controleur/controleur_profil_proprietaire.php', true);
+        xhr.open('POST', '../controleur/controleur_proprietaire.php', true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         
         // Définissez la fonction de rappel
@@ -242,7 +242,7 @@ function supprimerVisite(id_visite) {
                         // Suppression réussie côté serveur
                         console.log('Propriétaire supprimé avec succès.');
                         // Redirigez ou effectuez d'autres actions nécessaires
-                        window.location.href = '../laall.php';
+                        window.location.href = '../index.php';
                     } else {
                         // Gérez d'autres réponses ou erreurs
                         alert('Erreur: ' + response);

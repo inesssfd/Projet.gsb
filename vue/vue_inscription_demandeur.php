@@ -8,7 +8,8 @@
     <link href="../style/style_formualaire.css" type="text/css" rel="stylesheet" media="all">
 </head>
 <body>
-    <table>
+<div class="container">
+        <div class="form-container">
         <h1>Inscription demandeur</h1>
         <?php
         // Afficher les messages d'erreur s'il y en a dans l'URL
@@ -22,37 +23,38 @@
         ?>
         <form method="POST" action="..\controleur\controleur_demandeurs.php" enctype="application/x-www-form-urlencoded">
             <input type="hidden" name="action" value="inscription"> <!-- Champ caché pour spécifier l'action d'inscription -->
-            <tr>
-                <td>Nom de demandeur: </td>
-                <td><input type='text' name='nom_demandeur' size='20'></td>
-            </tr>
-            <tr>
-                <td>Prénom : </td>
-                <td><input type='text' name='prenom_demandeur' size='20' value=''></td>
-            </tr>
-            <tr>
-                <td>Adresse : </td>
-                <td><input type='text' name='adresse_demandeur' size='20' value=''></td>
-            </tr>
-            <tr>
-                <td>Code postal : </td>
-                <td><input type='text' name='cp_demandeur' size='20' value=''></td>
-            </tr>
-            <tr>
-                <td>Téléphone : </td>
-                <td><input type='text' name='tel_demandeur' size='20' value=''></td>
-            </tr>
-            <tr>
-                <td>Login :</td>
-                <td><input type='text' name='login' size='20' value=''></td>
-            </tr>
-            <tr>
-                <td>Mot de passe : </td>
-                <td><input type='text' name='motdepasse_demandeur' size='64' value=''></td>
-            </tr>
-            <td colspan="2"><input type='submit' value='Ajouter'></td>
-            </tr>
+            <div class="input-wrapper">
+                <label for="nom_demandeur">Nom de demandeur: </label>
+                <input type='text' name='nom_demandeur' size='20'>
+            </div>
+            <div class="input-wrapper">
+                <label for="prenom_demandeur"> Prénom : </label>
+                <input type='text' name='prenom_demandeur' size='20' value=''id="prenom_demandeur">
+            </div>
+             <div class="input-wrapper">
+                <label for="adresse_demandeur"> Adresse : </label>
+                <input type='text' name='adresse_demandeur' size='20' value=''id="adresse_demandeur">
+            </div>
+             <div class="input-wrapper">
+                <label  for="cp_demandeur">Code postal : </label>
+                <input type='text' name='cp_demandeur' size='20' value='' id="cp_demandeur">
+            </div>
+             <div class="input-wrapper">
+                <label  for="tel_demandeur">Téléphone : </label>
+                <input type='text' name='tel_demandeur' size='20' value=''id="tel_demandeur">
+            </div>
+             <div class="input-wrapper">
+                <label for="login">Login :</label>
+                <input type='text' name='login' size='20' value=''id="login">
+            </div>
+             <div class="input-wrapper">
+                <label for="motdepasse_demandeur">Mot de passe :</label>
+                <input type='text' name='motdepasse_demandeur' size='64' value=''id="motdepasse_demandeur">
+            </div>
+            <td colspan="2"><input type='submit' value='Ajouter'></label>
+            </div>
         </form>
-    </table>
+        </div>
+    </div>
 </body>
 </html>

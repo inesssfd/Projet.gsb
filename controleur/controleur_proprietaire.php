@@ -1,11 +1,16 @@
 <?php
-session_start();
-include_once '..\modele\modele_proprietaire.php';
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+include_once '../modele/modele_proprietaire.php';
 
 class ProprietaireController {
+    private $proprietaire;
     private $errors = [];
 
     public function __construct() {
+        $this->proprietaire = new Proprietaire();
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Si le formulaire d'inscription est soumis
             if (isset($_POST['action']) && $_POST['action'] === 'inscription') {
@@ -15,7 +20,22 @@ class ProprietaireController {
             elseif (isset($_POST['action']) && $_POST['action'] === 'connexion') {
                 $this->connexion();
             }
+            // Si le formulaire de suppression est soumis
+            elseif (isset($_POST['action']) && $_POST['action'] === 'supprimerProprietaireConnecte') {
+                $this->supprimerProprietaireConnecte();
+            }
+        } else {
+            // Si aucune action de formulaire n'est spécifiée, récupérez le loyer total par propriétaire
+            $this->recupererLoyerTotal();
         }
+    }
+
+    public function getDetailsProprietaire() {
+        if (isset($_SESSION['numero_prop'])) {
+            $numero_prop = $_SESSION['numero_prop'];
+            return $this->proprietaire->getDetailsProprietaireById($numero_prop);
+        }
+        return [];
     }
 
     private function inscription() {
@@ -62,9 +82,8 @@ class ProprietaireController {
         $login_prop = $_POST['login_prop'];
         $motdepasse_pro = $_POST['motdepasse_pro'];
 
-        $proprietaire = new Proprietaire();
-        if ($proprietaire->connexion_prop($login_prop, $motdepasse_pro)) {
-            $numero_prop = $proprietaire->getNumeroProp();
+        if ($this->proprietaire->connexion_prop($login_prop, $motdepasse_pro)) {
+            $numero_prop = $this->proprietaire->getNumeroProp();
             $_SESSION['login_prop'] = $login_prop;
             $_SESSION['numero_prop'] = $numero_prop; // Stockez le numéro du propriétaire dans la session
             $this->redirigerVersAccueilPro();
@@ -74,11 +93,33 @@ class ProprietaireController {
         }
     }
 
+    private function supprimerProprietaireConnecte() {
+        if (isset($_SESSION['numero_prop'])) {
+            $numero_prop = $_SESSION['numero_prop'];
+            $success = $this->proprietaire->supprimerProprietaire($numero_prop);
+            if ($success) {
+                session_destroy();
+                echo 'success';
+                exit;
+            } else {
+                echo 'error';
+                exit;
+            }
+        }
+    }
+
     private function redirigerVersAccueilPro() {
         header('Location: ../vue/v_acceuil_pro.php');
         exit();
     }
 
+    public function recupererLoyerTotal() {
+        if (isset($_SESSION['numero_prop'])) {
+            $numero_prop = $_SESSION['numero_prop'];
+            return $this->proprietaire->getLoyerTotalParProprietaire($numero_prop);
+        }
+        return null;
+    }
     private function champsVides() {
         return empty($_POST['nom_prop']) || empty($_POST['prenom_prop']) || empty($_POST['adresse_prop']) || empty($_POST['cp_prop']) || empty($_POST['tel_prop']) || empty($_POST['login_prop']) || empty($_POST['motdepasse_pro']);
     }

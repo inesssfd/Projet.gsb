@@ -10,7 +10,8 @@
 </head>
 
 <body>
-    <div class="form-wrapper"> <!-- Div pour envelopper le formulaire -->
+<div class="container">
+        <div class="form-container">
         <h1>Inscription Propriétaire</h1> <!-- Titre centré -->
         <?php
         // Afficher les messages d'erreur s'il y en a dans l'URL
@@ -54,6 +55,7 @@
             </div>
             <input type='submit' value='Ajouter'>
         </form>
+        </div>
     </div>
 </body>
 
