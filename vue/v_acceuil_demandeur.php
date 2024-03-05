@@ -1,12 +1,12 @@
 <?php
 
 include_once '../modele/modele_app.php';
-include_once '../controleur/DemandeurController.php';
+include_once '../controleur/controleur_app.php';
 include_once '../controleur/controleur_visite.php';
 
 // Récupérer la liste des appartements
 $appartements = Appartement::getAllAppartements();
-$appartements_demandeur = DemandeurController::rechercherAppartements();
+$appartements_demandeur = AppartementController::rechercherAppartements();
 ?>
 <!DOCTYPE html>
 <html lang="en">

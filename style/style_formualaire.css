@@ -84,22 +84,36 @@ select {
     width: 100%;
 }
 
-input[type='submit'] {
-    width: 100%;
-    padding: 10px 20px;
-    background-color: #3498db;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
+input[type="submit"] {
+  font-family: "proxima-nova", sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+  text-transform: capitalize;
+  border: 1px solid #fff;
+  border-radius: 50px;
+  position: relative;
+  overflow: hidden;
+  -webkit-transition: all .3s ease-in-out;
+  -moz-transition: all .3s ease-in-out;
+  -o-transition: all .3s ease-in-out;
+  transition: all .3s ease-in-out;
+  background: transparent;
+  z-index: 10;
+  background: linear-gradient(to right, #071982 50%, #80ffd3 50%);
+    background-position-x: 0%;
+    background-position-y: 0%;
+    background-size: auto;
+  background-size: 200% 100%;
+  background-position: right bottom;
 }
-
-input[type='submit']:hover {
-    background-color: #1fd1c8;
+input[type="submit"]:hover {
+  background-position: left bottom;
 }
-
 
 /* Style the header */
 h1 {

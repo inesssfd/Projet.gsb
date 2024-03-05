@@ -47,17 +47,17 @@ function modifierAppartement(num_appt, num_prop) {
             // Gérer la réponse du serveur ici
         }
     };
-
-    // Construction de la chaîne de requête avec les nouvelles valeurs
     var params = "num_prop=" + num_prop +
-                 "&num_appt=" + num_appt +
-                 "&nouveauType=" + encodeURIComponent(nouveauType) +
-                 "&nouveauPrix=" + encodeURIComponent(nouveauPrix) +
-                 "&nouvelleCharge=" + encodeURIComponent(nouvelleCharge) +
-                 "&nouvelleRue=" + encodeURIComponent(nouvelleRue);
+    "&num_appt=" + num_appt +
+    "&nouveauType=" + encodeURIComponent(nouveauType) +
+    "&nouveauPrix=" + encodeURIComponent(nouveauPrix) +
+    "&nouvelleCharge=" + encodeURIComponent(nouvelleCharge) +
+    "&nouvelleRue=" + encodeURIComponent(nouvelleRue) +
+    "&action=modifierAppartement"; // Assurez-vous d'ajouter l'action
+
 
     // Ouverture de la requête AJAX et envoi avec la chaîne de requête
-    xhr.open("POST", "../controleur/controleur_modification_appartement.php?action=modifierAppartement", true);
+    xhr.open("POST", "../controleur/controleur_app.php", true); // Utilisez le bon chemin vers votre script PHP
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send(params);
 }
@@ -294,85 +294,6 @@ function supprimerLocataire() {
     // Envoyez la requête avec les données POST
     xhr.send('action=supprimerLocataire');
 }
-
-    function modifierProprietaire() {
-        console.log("fonction appelée");
-    
-        // Utilisation de prompt pour saisir de nouvelles valeurs
-        var nouveauNom = document.getElementById('nom_prop').innerText;
-        var nouveauPrenom = document.getElementById('prenom_prop').innerText;
-        var nouvelleAdresse = document.getElementById('adresse_prop').innerText;
-        var nouveauCodePostal = document.getElementById('cp_prop').innerText;
-        var nouveauTelephone = document.getElementById('tel_prop').innerText;
-        var nouveauLogin = document.getElementById('login_prop').innerText;
-        // Création d'un objet pour stocker les paramètres à envoyer
-        var params = {};
-    
-        // Vérification des valeurs et ajout aux paramètres non nuls
-        if (nouveauNom !== null && nouveauNom !== "") {
-            params.nouveauNom = nouveauNom;
-        }
-        if (nouveauPrenom !== null && nouveauPrenom !== "") {
-            params.nouveauPrenom = nouveauPrenom;
-        }
-        if (nouvelleAdresse !== null && nouvelleAdresse !== "") {
-            params.nouvelleAdresse = nouvelleAdresse;
-        }
-        if (nouveauCodePostal !== null && nouveauCodePostal !== "") {
-            params.nouveauCodePostal = nouveauCodePostal;
-        }
-        if (nouveauTelephone !== null && nouveauTelephone !== "") {
-            params.nouveauTelephone = nouveauTelephone;
-        }
-        if (nouveauLogin !== null && nouveauLogin !== "") {
-            params.nouveauLogin = nouveauLogin;
-        }
-    
-        // Vérifier si des paramètres ont été ajoutés avant d'envoyer la requête AJAX
-        if (Object.keys(params).length > 0) {
-            // Envoi des nouvelles valeurs au serveur (par exemple, via une requête AJAX)
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4) {
-                    console.log("Réponse complète du serveur : " + xhr.responseText);
-    
-                    if (xhr.status == 200) {
-                        try {
-                            var response = JSON.parse(xhr.responseText);
-    
-                            if (response.status === 'success') {
-                                alert("Données du demandeur modifiées avec succès!");
-                                // Actualisez la page ou effectuez d'autres actions après la modification
-                            } else if (response.status === 'error') {
-                                console.error("Erreur de modification côté serveur. Message du serveur : " + response.message);
-                            } else {
-                                console.error("Réponse inattendue du serveur.");
-                            }
-                        } catch (error) {
-                            console.error("Erreur lors de l'analyse de la réponse JSON : " + error);
-                        }
-                    } else {
-                        console.error("Erreur de modification côté serveur. Statut HTTP : " + xhr.status);
-                    }
-                }
-            };
-    
-            // Construction de la chaîne de requête avec les nouvelles valeurs
-            var queryString = Object.keys(params).map(function (key) {
-                return key + '=' + encodeURIComponent(params[key]);
-            }).join('&');
-    
-            // Ouverture de la requête AJAX (assurez-vous d'ajuster l'URL du script serveur)
-            xhr.open("POST", "../controleur/controleur_modif_proprio.php?action=modifierPropriétaire", true);
-    
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    
-            // Envoi de la requête avec la chaîne de requête
-            xhr.send(queryString);
-        } else {
-            console.error("Aucune nouvelle valeur fournie.");
-        }
-    }
    function modifierloccataire() {
     console.log("fonction appelée");
        

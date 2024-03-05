@@ -20,7 +20,8 @@ session_start();
             <div>Bienvenue, <?php echo (isset($_SESSION['login_prop']) ? $_SESSION['login_prop'] : 'Invité'); ?> | <span>Propriétaire ID: <?php echo (isset($_SESSION['numero_prop']) ? $_SESSION['numero_prop'] : 'N/A'); ?></span> | <a href="../modele/deconnexion.php">Déconnexion</a></div>
         </ul>
     </nav>
-    <form method="POST" action="../controleur/controleur_nvl_app.php" class="center-form">
+    <form method="POST" action="../controleur/controleur_app.php" class="center-form">
+    <input type="hidden" name="action" value="ajouterAppartement">
     <h1>Ajouter un Appartement</h1>
 
     <label for="type_appt">Type d'Appartement:</label>
