@@ -1,30 +1,44 @@
 <?php
+// Vérification de session
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Vérifiez si la session est active et si l'utilisateur est connecté en tant que demandeur ou propriétaire
+if (!isset($_SESSION['num_demandeur']) && !isset($_SESSION['numero_prop'])) {
+    // Redirection vers la page de connexion
+    header("Location: ../index.php");
+    exit;
+}
 
 include_once '../modele/modele_app.php';
 include_once '../controleur/controleur_app.php';
 include_once '../controleur/controleur_visite.php';
 
 // Récupérer la liste des appartements
-$appartements = Appartement::getAllAppartements();
-$controller = new AppartementController();
-
-// Call the rechercherAppartements() method on the instance
 $appartements_demandeur = Appartement::getAppartementsSansLocataire();
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style/style_appartement.css">
+    <script src="../style/script.js" defer></script>
+</head>
+<body>
+    
 <nav>
     <ul>
         <li><a href="v_acceuil_demandeur.php">Accueil</a></li>
-        <li><a href="appartement_loué.php">visites et profil du Demandeur</a></li>
-        <div>Bienvenue, <?php echo (isset($_SESSION['login']) ? $_SESSION['login'] : 'Invité'); ?> (Numéro Demandeur: <?php echo isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : 'N/A'; ?>) | <a href="../modele/deconnexion.php">Déconnexion</a></div>
+        <li><a href="appartement_loué.php">Visites et profil du demandeur</a></li>
+        <div>Bienvenue, <?php echo (isset($_SESSION['login']) ? $_SESSION['login'] : 'Invité'); ?> (Numéro Demandeur: <?php echo isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : 'N/A'; ?>) | <a href="../index.php">Déconnexion</a></div>
 
         <li>
-        <form method="GET" action="v_acceuil_demandeur.php" id="search-form">
-    <label for="type_appt">Type :</label>
-    <select name="type_appt" id="type_appt">
+        <form method="GET" action="v_acceuil_demandeur.php" class="search-form">
+    <label class="search-form" for="type_appt">Type :</label>
+    <select name="type_appt" id="type_appt" class="search-form">
         <option value="">Tous</option>
         <option value="Studio">Studio</option>
         <option value="T1">T1</option>
@@ -34,8 +48,8 @@ $appartements_demandeur = Appartement::getAppartementsSansLocataire();
         <option value="T5">T5</option>
     </select>
 
-    <label for="arrondisement">Arrondissement :</label>
-    <select name="arrondisement" id="arrondisement">
+    <label  class="search-form" for="arrondisement">Arrondissement :</label>
+    <select  class="search-form" name="arrondisement" id="arrondisement">
         <option value="">Tous</option>
         <?php
         // Tableau des arrondissements de Paris avec les codes postaux
@@ -68,27 +82,19 @@ $appartements_demandeur = Appartement::getAppartementsSansLocataire();
         }
         ?>
     </select>
-
     <label for="prix_loc">Prix maximum :</label>
-    <input type="text" name="prix_loc" id="prix_loc">
+    <input type="text" name="prix_loc" id="prix_loc" class="search-form">
+    <input type="submit" value="Rechercher" class="search-button">
 
-    <input type="submit" value="Rechercher">
+
 </form>
         </li>
     </ul>
 </nav>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../style/style_acceuil.css">
-    <script src="../style/script.js" defer></script>
-    <link rel="stylesheet" href="../style/style_appartement.css">
-</head>
-<body>
-    
-<div>
 
+<div>
     <?php
-    echo '<div class="appartements-container" >';
+    echo '<div class="appartements-container">';
     echo "<h2>Liste des Appartements</h2>";
     $num_demandeur_connecte = isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : null;
     echo "Numéro du demandeur connecté : " . $num_demandeur_connecte;
@@ -100,7 +106,20 @@ $appartements_demandeur = Appartement::getAppartementsSansLocataire();
         if ($apartments_in_row % 3 === 0) {
             echo '<div class="row" style="display: flex; justify-content: space-between; margin-bottom: 20px;">';
         }
-      
+        echo '<div class="appartement-proprio" style="max-width: 60%;">';
+        echo "<strong>Type :</strong> " . $appartement->getTypeAppt() . "<br>";
+        echo "<strong>Prix :</strong> " . $appartement->getPrixLoc() . "<br>";
+        echo "<strong>Charges :</strong> " . $appartement->getPrixCharge() . "<br>";
+        echo "<strong>Rue :</strong> " . $appartement->getRue() . "<br>";
+        echo "<strong>Arrondissement :</strong> " . $appartement->getArrondisement() . "<br>";
+        echo "<strong>Étage :</strong> " . $appartement->getEtage() . "<br>";
+        echo "<strong>Ascenseur :</strong> " . $appartement->getAscenceur() . "<br>";
+        echo "<strong>Préavis :</strong> " . $appartement->getPreavis() . "<br>";
+        echo "<strong>Date libre :</strong> " . $appartement->getDateLibre() . "<br>";
+        echo "<strong>Numéro Propriétaire :</strong> " . $appartement->getNumeroProp() . "<br>";        
+        echo '<input type="hidden" name="num_appt" value="' . $appartement->getNumAppt() . '">';
+        echo '<button class="visit-button" onclick=\'console.log("Visiter button clicked"); showVisitForm(' . $appartement->getNumAppt() . ',' . $num_demandeur_connecte . ')\'>Visiter</button></p>';
+        echo "</div>";
 
         // End the row after every 3 apartments
         if ($apartments_in_row % 3 === 2 || $apartments_in_row === count($appartements_demandeur) - 1) {
@@ -113,6 +132,8 @@ $appartements_demandeur = Appartement::getAppartementsSansLocataire();
     echo "</div>";
     ?>
 </div>
+
+
 <div id="myModal" class="modal">
     <!-- Contenu de la modalité -->
     <div class="modal-content">

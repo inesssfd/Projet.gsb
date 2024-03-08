@@ -20,7 +20,7 @@ if (isset($_SESSION['numero_prop'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="../style/script.js" defer></script>
     <link rel="stylesheet" href="../style/style_appartement.css">
-    <link rel="stylesheet" href="../style/style_acceuil.css">
+
 </head>
 
 <body>

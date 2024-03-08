@@ -7,8 +7,7 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ajouter Appartement</title>
-    <link rel="stylesheet" href="../style/style_acceuil.css">
-<link rel="stylesheet" href="../style/style_formualaire.css">
+    <link rel="stylesheet" href="../style/style_appartement.css">
 
 </head>
 
@@ -24,7 +23,7 @@ session_start();
     <input type="hidden" name="action" value="ajouterAppartement">
     <h1>Ajouter un Appartement</h1>
 
-    <label for="type_appt">Type d'Appartement:</label>
+     <label  class="formulaire"for="type_appt">Type d'Appartement:</label>
 <select id="type_appt" name="type_appt" required>
     <option value="Studio">Studio</option>
     <option value="T1">T1</option>
@@ -35,15 +34,15 @@ session_start();
 </select>
 
 
-    <label for="prix_loc">Prix de Location:</label>
+     <label class="formulaire"for="prix_loc">Prix de Location:</label>
     <input type="text" id="prix_loc" name="prix_loc" required>
 
-    <label for="prix_charge">Prix des Charges:</label>
+     <label class="formulaire"for="prix_charge">Prix des Charges:</label>
     <input type="text" id="prix_charge" name="prix_charge" required>
 
-    <label for="rue">Rue:</label>
+     <label  class="formulaire"for="rue">Rue:</label>
     <input type="text" id="rue" name="rue" required>
-    <label for="arrondisement">Arrondissement:</label>
+     <label  class="formulaire"for="arrondisement">Arrondissement:</label>
 <select id="arrondisement" name="arrondisement" required>
     <?php
     // Tableau des arrondissements de Paris avec les codes postaux
@@ -78,25 +77,25 @@ session_start();
 </select>
 
 
-    <label for="etage">Étage:</label>
+     <label  class="formulaire"for="etage">Étage:</label>
     <input type="text" id="etage" name="etage" required>
 
-    <label for="ascenseur">Ascenseur:</label>
+     <label  class="formulaire"for="ascenseur">Ascenseur:</label>
     <select id="ascenseur" name="ascenseur" required>
         <option value="1">Oui</option>
         <option value="0">Non</option>
     </select>
 
-    <label for="preavis">Préavis:</label>
+     <label  class="formulaire"for="preavis">Préavis:</label>
     <select id="preavis" name="preavis" required>
         <option value="1">Oui</option>
         <option value="0">Non</option>
     </select>
 
-    <label for="date_libre">Date Libre:</label>
+     <label  class="formulaire"for="date_libre">Date Libre:</label>
     <input type="date" id="date_libre" name="date_libre" required>
 
-    <label for="numero_prop">Numéro du Propriétaire :</label>
+     <label  class="formulaire"for="numero_prop">Numéro du Propriétaire :</label>
 <input type="hidden" id="numero_prop" name="numero_prop" value="<?php echo isset($_SESSION['numero_prop']) ? $_SESSION['numero_prop'] : ''; ?>">
 <span><?php echo isset($_SESSION['numero_prop']) ? $_SESSION['numero_prop'] : ''; ?></span> <!-- Affichage pour confirmation (facultatif) -->
 

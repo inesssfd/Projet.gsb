@@ -5,7 +5,7 @@
     <meta name="Author" content="Iness safady">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <!-- Appel de la feuille de style (laissez l'attribut href vide si vous n'avez pas encore de feuille de style) -->
-    <link href="../style/style_formualaire.css" type="text/css" rel="stylesheet" media="all">
+    <link href="../style/style_appartement.css" type="text/css" rel="stylesheet" media="all">
 </head>
 <body>
 <div class="container">

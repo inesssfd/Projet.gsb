@@ -15,8 +15,7 @@ $loyerTotal = $controller->recupererLoyerTotal();
     <script src="../style/script.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../style/style_profil.css">
-    <link rel="stylesheet" href="../style/style_acceuil.css">
+    <link rel="stylesheet" href="../style/style_appartement.css">
     <title>Profil du Propriétaire</title>
 </head>
 <nav>

@@ -5,7 +5,7 @@
 <title>Gestion de visite</title>
  <meta NAME="Author" CONTENT="Iness Safady">
  <meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
- <link href="../style/style_formualaire.css" type="text/css" rel="stylesheet" media="all">
+ <link href="../style/style_appartement.css" type="text/css" rel="stylesheet" media="all">
 </head>
 <body>
 <div class="container">
