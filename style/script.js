@@ -92,7 +92,7 @@ function supprimerVisite(id_visite) {
                 <input type="hidden" name="num_demandeur" value="${num_demandeur}">
                 
                 <label for="num_appt">Numéro de l'appartement :</label>
-                <input type="text" name="num_appt" id="num_appt" value="${num_appt}" required class="form-input">
+                <input type="text" name="num_appt" id="num_appt" value="${num_appt}" required class="form-input" readonly>
                 
                 <label for="date_visite">Date de visite :</label>
                 <input type="date" name="date_visite" id="date_visite" required class="form-input"><br>

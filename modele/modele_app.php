@@ -98,34 +98,35 @@ class Appartement {
     public function setNumAppt($num_appt) {
         $this->num_appt = $num_appt;}
 
-    public function ajouterAppartement()
-    {
-        // Requête SQL d'insertion
-        $sql = "INSERT INTO appartement (type_appt, prix_loc, prix_charge, rue, arrondisement, etage, ascenceur, preavis, date_libre, numero_prop) 
-                VALUES (:type_appt, :prix_loc, :prix_charge, :rue, :arrondisement, :etage, :ascenceur, :preavis, :date_libre, :numero_prop)";
-    
-        try {
-            $stmt = $this->maConnexion->prepare($sql);
-            $stmt->bindParam(':type_appt', $this->type_appt);
-            $stmt->bindParam(':prix_loc', $this->prix_loc);
-            $stmt->bindParam(':prix_charge', $this->prix_charge);
-            $stmt->bindParam(':rue', $this->rue);
-            $stmt->bindParam(':arrondisement', $this->arrondisement);
-            $stmt->bindParam(':etage', $this->etage);
-            $stmt->bindParam(':ascenceur', $this->ascenceur);
-            $stmt->bindParam(':preavis', $this->preavis);
-            $stmt->bindParam(':date_libre', $this->date_libre);
-            $stmt->bindParam(':numero_prop', $this->numero_prop);
-    
-            $stmt->execute();
-    
-            return true; // Succès de l'insertion
-        } catch (PDOException $e) {
-            // En cas d'erreur
-            echo "Erreur d'insertion : " . $e->getMessage(); // Ajout de l'affichage de l'erreur spécifique
-            return false;
+        public function ajouterAppartement()
+        {
+            // Requête SQL d'insertion
+            $sql = "INSERT INTO appartement (type_appt, prix_loc, prix_charge, rue, arrondisement, etage, ascenceur, preavis, date_libre, numero_prop) 
+                    VALUES (:type_appt, :prix_loc, :prix_charge, :rue, :arrondisement, :etage, :ascenseur, :preavis, :date_libre, :numero_prop)";
+            
+            try {
+                $stmt = $this->maConnexion->prepare($sql);
+                $stmt->bindParam(':type_appt', $this->type_appt);
+                $stmt->bindParam(':prix_loc', $this->prix_loc);
+                $stmt->bindParam(':prix_charge', $this->prix_charge);
+                $stmt->bindParam(':rue', $this->rue);
+                $stmt->bindParam(':arrondisement', $this->arrondisement);
+                $stmt->bindParam(':etage', $this->etage);
+                $stmt->bindParam(':ascenseur', $this->ascenseur);
+                $stmt->bindParam(':preavis', $this->preavis);
+                $stmt->bindParam(':date_libre', $this->date_libre);
+                $stmt->bindParam(':numero_prop', $this->numero_prop);
+            
+                $stmt->execute();
+            
+                return true; // Succès de l'insertion
+            } catch (PDOException $e) {
+                // En cas d'erreur
+                echo "Erreur d'insertion : " . $e->getMessage(); // Ajout de l'affichage de l'erreur spécifique
+                return false;
+            }
         }
-    }
+        
     public static function getAllAppartementsByProprietaire($numero_prop) {
         $connexionDB = new ConnexionDB();
         $maConnexion = $connexionDB->get_connexion();

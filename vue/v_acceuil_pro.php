@@ -58,6 +58,7 @@ if (isset($appartements) && !empty($appartements)) {
         echo "<div class='button-container'>";
         echo "<button class='custom-pro' onclick='supprimerAppartement(" . $appartement['num_appt'] . ")'>Supprimer</button>";
         echo "<button class='custom-pro' onclick='modifierAppartement(" . $appartement['num_appt'] . ", " . $_SESSION['numero_prop'] . ")'>Modifier</button>";
+        echo "</div>";  // Fermer la div pour le conteneur de boutons ici
         echo "</ul>";  // Fermer la liste interne ici
         echo "</li>";
     }

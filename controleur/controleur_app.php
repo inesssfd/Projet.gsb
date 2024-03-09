@@ -23,6 +23,11 @@ class AppartementController {
             }
         }
     }
+    public function getConfirmation() {
+        return $this->confirmation;
+    }
+    
+
     public function rechercherAppartements() {
         $type_appt = isset($_GET['type_appt']) ? $_GET['type_appt'] : '';
         $arrondisement = isset($_GET['arrondisement']) ? $_GET['arrondisement'] : '';
@@ -32,7 +37,7 @@ class AppartementController {
         return Appartement::getFilteredAppartements($type_appt, $arrondisement, $prix_loc);
     }
     private function ajouterAppartement() {
-        $num_appt=$_POST['num_appt'];
+        $num_appt = $_POST['num_appt'];
         $type_appt = $_POST['type_appt'];
         $prix_loc = $_POST['prix_loc'];
         $prix_charge = $_POST['prix_charge'];
@@ -43,16 +48,25 @@ class AppartementController {
         $preavis = $_POST['preavis'];
         $date_libre = $_POST['date_libre'];
         $numero_prop = $_POST['numero_prop'];
-
-        $appartement = new Appartement($num_appt,$type_appt, $prix_loc, $prix_charge, $rue, $arrondisement, $etage, $ascenseur, $preavis, $date_libre, $numero_prop);
-
-        if ($appartement->ajouterAppartement()) {
-            header('Location: ../vue/v_acceuil_pro.php');
-            exit(); // Assurez-vous de terminer le script après la redirection
-        } else {
-            $this->confirmation = "Erreur lors de l'ajout de l'appartement.";
+    
+        $appartement = new Appartement($num_appt, $type_appt, $prix_loc, $prix_charge, $rue, $arrondisement, $etage, $ascenseur, $preavis, $date_libre, $numero_prop);
+    
+        try {
+            if ($appartement->ajouterAppartement()) {
+                // Redirection avec un message de succès
+                header('Location: ../vue/v_acceuil_pro.php?success=1');
+                exit();
+            } else {
+                // En cas d'échec, stocker le message d'erreur dans la variable de session
+                $_SESSION['confirmation'] = "Erreur lors de l'ajout de l'appartement vous avez deja trop d'appartement";
+            }
+        } catch (PDOException $e) {
+            // En cas d'erreur PDO, affichez le message d'erreur spécifique
+            $_SESSION['confirmation'] = "Erreur lors de l'ajout de l'appartement : " . $e->getMessage();
         }
     }
+    
+    
     private function modifierAppartement() {
         // Récupérer les données POST
         $num_prop = $_POST['num_prop'];
@@ -68,16 +82,13 @@ class AppartementController {
         // Vérifier le résultat de la modification
         if ($resultat) {
             // Modification réussie
-            $this->confirmation = json_encode(['success' => true]);
+            $this->confirmation = "L'appartement a été modifié avec succès.";
         } else {
             // Erreur lors de la modification
-            $this->confirmation = json_encode(['success' => false, 'message' => 'Erreur lors de la modification de l\'appartement.']);
+            $this->confirmation = "Erreur lors de la modification de l'appartement.";
         }
     }
 
-    public function getConfirmation() {
-        return $this->confirmation;
-    }
 }
 
 $controller = new AppartementController();

@@ -1,3 +1,24 @@
+@media only screen and (max-width: 600px) {
+    .appartement-proprio {
+        width: 100%; /* Pour que les cartes d'appartement prennent toute la largeur de l'écran */
+    }
+    .row {
+        flex-direction: column; /* Pour afficher les appartements en une seule colonne */
+    }
+    
+    .appartements-container {
+        width: 100%; /* Pour que les cartes d'appartement prennent toute la largeur de l'écran */
+    }
+    
+    .custom-pro {
+        width: 100%; /* Pour que les cartes d'appartement prennent toute la largeur de l'écran */
+    }
+    
+    .button-container {
+        width: 100%; /* Pour que les cartes d'appartement prennent toute la largeur de l'écran */
+    }
+}
+
 .appartements-container {
     margin: 20px;
     padding: 20px;
