@@ -12,6 +12,14 @@ session_start();
 </head>
 
 <body>
+<nav>
+    <ul>
+        <li><a href="v_acceuil_demandeur.php">Accueil</a></li>
+        <li><a href="appartement_loué.php">visite et profil du Demandeur</a></li>
+    <a href="../modele/deconnexion.php">Déconnexion</a>
+</div>
+    </ul>
+</nav>
 <title>Location</title>
     <meta name="Author" content="Iness Safady">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -20,23 +28,26 @@ session_start();
 <body>
 <div class="container">
     <div class="form-container">
-        <h1>Location</h1>
+    <h1>Location</h1>
+        <?php if (!empty($confirmation)) : ?>
+            <div class="error-message"><?php echo $confirmation; ?></div>
+        <?php endif; ?>
         <form method="POST" action="../controleur/controleur_locc.php" enctype="application/x-www-form-urlencoded">
             <?php if (!empty($confirmation)) : ?>
                 <script>
                     alert('<?php echo $confirmation; ?>');
                 </script>
             <?php endif; ?>
-            
-            <div class="input-wrapper">
+                        <div class="input-wrapper">
                 <label for="prenom_loc">Prénom:</label>
-                <input type="text" id="prenom_loc" name="prenom_loc" value="<?php echo isset($_SESSION['prenom']) ? htmlspecialchars($_SESSION['prenom']) : ''; ?>" required>
+                <input type="text" id="prenom_loc" name="prenom_loc" value="<?php echo isset($_SESSION['prenom_demandeur']) ? htmlspecialchars($_SESSION['prenom_demandeur']) : ''; ?>" required>
             </div>
 
             <div class="input-wrapper">
                 <label for="nom_loc">Nom:</label>
-                <input type="text" id="nom_loc" name="nom_loc" value="<?php echo isset($_SESSION['nom']) ? htmlspecialchars($_SESSION['nom']) : ''; ?>" required>
+                <input type="text" id="nom_loc" name="nom_loc" value="<?php echo isset($_SESSION['nom_demandeur']) ? htmlspecialchars($_SESSION['nom_demandeur']) : ''; ?>" required>
             </div>
+
 
             <div class="input-wrapper">
                 <label for="date_nais">Date de naissance:</label>

@@ -4,22 +4,32 @@ session_start();
 
 function modifierProprietaireHandler() {
     // Vérification de l'action dans les paramètres GET
-    if (isset($_GET['action']) && $_GET['action'] == 'modifierPropriétaire') {
+    if (isset($_GET['action']) && $_GET['action'] == 'modifierProprietaireHandler') {
+        // Récupérer les données JSON envoyées depuis le client
+        $jsonData = isset($_GET['jsonData']) ? $_GET['jsonData'] : null;
+        // Décoder les données JSON
+        $data = json_decode($jsonData, true);
+
         // Récupérer le numéro du demandeur connecté depuis la session
-        $num_proprietaire_connecte = isset($_SESSION['numero_prop']) ? $_SESSION['numero_prop'] : null;
+        $num_proprietaire_connecte = isset($_SESSION['numero_prop']) ? intval($_SESSION['numero_prop']) : null;
 
-        // Création d'une instance de la classe demandeurs
-        $proprietaire = new proprietaire();
+        // Création d'une instance de la classe proprietaire
+        $proprietaire = new proprietaire(); // Assurez-vous que le nom de la classe est correct
 
-        $nouveauNom = isset($_POST['nouveauNom']) ? $_POST['nouveauNom'] : null;
-        $nouveauPrenom = isset($_POST['nouveauPrenom']) ? $_POST['nouveauPrenom'] : null;
-        $nouvelleAdresse = isset($_POST['nouvelleAdresse']) ? $_POST['nouvelleAdresse'] : null;
-        $nouveauCodePostal = isset($_POST['nouveauCodePostal']) ? $_POST['nouveauCodePostal'] : null;
-        $nouveauTelephone = isset($_POST['nouveauTelephone']) ? $_POST['nouveauTelephone'] : null;
-        $nouveauLogin = isset($_POST['nouveauLogin']) ? $_POST['nouveauLogin'] : null;
+        // Récupérer les données du tableau $data au lieu de $_POST
+        $nouveauNom = isset($data['nouveauNom']) ? $data['nouveauNom'] : null;
+        $nouveauPrenom = isset($data['nouveauPrenom']) ? $data['nouveauPrenom'] : null;
+        $nouvelleAdresse = isset($data['nouvelleAdresse']) ? $data['nouvelleAdresse'] : null;
+        $nouveauCodePostal = isset($data['nouveauCodePostal']) ? $data['nouveauCodePostal'] : null;
+        $nouveauTelephone = isset($data['nouveauTelephone']) ? $data['nouveauTelephone'] : null;
+        $nouveauLogin = isset($data['nouveauLogin']) ? $data['nouveauLogin'] : null;
 
-        // Appel de la méthode de modification avec le numéro du demandeur connecté
-        $proprietaire->modifierPropriétaire($nouveauNom, $nouveauPrenom, $nouvelleAdresse, $nouveauCodePostal, $nouveauTelephone,$nouveauLogin, $num_proprietaire_connecte);
+        // Appeler la méthode modifierPropriétaire avec les données récupérées
+        $proprietaire->modifierPropriétaire($nouveauNom, $nouveauPrenom, $nouvelleAdresse, $nouveauCodePostal, $nouveauTelephone, $nouveauLogin, $num_proprietaire_connecte);
+
+        // Afficher les paramètres reçus pour le débogage
+        echo "Paramètres reçus dans le contrôleur : ";
+        var_dump($nouveauNom, $nouveauPrenom, $nouvelleAdresse, $nouveauCodePostal, $nouveauTelephone, $nouveauLogin, $num_proprietaire_connecte);
     }
 }
 

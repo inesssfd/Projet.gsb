@@ -45,6 +45,13 @@ function modifierAppartement(num_appt, num_prop) {
         if (xhr.readyState == 4) {
             console.log("Réponse complète du serveur : " + xhr.responseText);
             // Gérer la réponse du serveur ici
+            if (xhr.status == 200) {
+                // Si la réponse est 200 (OK), afficher un message d'alerte
+                alert(xhr.responseText);
+            } else {
+                // Sinon, afficher un message d'alerte indiquant qu'il y a eu une erreur
+                alert("Erreur lors de la modification de l'appartement.");
+            }
         }
     };
     var params = "num_prop=" + num_prop +
@@ -54,7 +61,6 @@ function modifierAppartement(num_appt, num_prop) {
     "&nouvelleCharge=" + encodeURIComponent(nouvelleCharge) +
     "&nouvelleRue=" + encodeURIComponent(nouvelleRue) +
     "&action=modifierAppartement"; // Assurez-vous d'ajouter l'action
-
 
     // Ouverture de la requête AJAX et envoi avec la chaîne de requête
     xhr.open("POST", "../controleur/controleur_app.php", true); // Utilisez le bon chemin vers votre script PHP

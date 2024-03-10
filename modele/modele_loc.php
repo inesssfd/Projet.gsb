@@ -39,17 +39,35 @@ class Locataire {
         $this->maConnexion = $connexionDB->get_connexion();
     }
     public function getnum_loc() {
-        return $this->num_loc;}
+        return $this->num_loc;
+    }
 
-        public function getnum_appt() {
-            return $this->num_appt;}
+    public function getnum_appt() {
+        return $this->num_appt;
+    }
 
-        public function getLoginLoc() {
-            return $this->login_loc;}
+    public function getLoginLoc() {
+        return $this->login_loc;
+    }
 
-            public function gemotdepasse_loct() {
-                return $this->motdepasse_loc;}
-    
+    public function gemotdepasse_loct() {
+        return $this->motdepasse_loc;
+    }
+
+    public function gettel_loc() {
+        return $this->tel_loc;
+    }
+
+    public function getNum_bancaire() {
+        return $this->num_bancaire;
+    }
+    public function getCp_banque() {
+        return $this->cp_banque;
+    }
+    public function getTel_banque() {
+        return $this->tel_banque;
+    }
+         
 
 
     public function connexion($login_loc, $motdepasse_loc)

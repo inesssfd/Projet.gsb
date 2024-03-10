@@ -114,55 +114,63 @@ class proprietaire {
     
 }
 public function modifierPropriétaire($nouveauNom, $nouveauPrenom, $nouvelleAdresse, $nouveauCodePostal, $nouveauTelephone, $nouveauLogin, $num_proprietaire_connecte) {
-    error_log('La fonction modifierPropriétaire est appelée.');
+    echo "Paramètres reçus dans la méthode de la classe : ";
+    var_dump($nouveauNom, $nouveauPrenom, $nouvelleAdresse, $nouveauCodePostal, $nouveauTelephone, $nouveauLogin, $num_proprietaire_connecte);
     $connexionDB = new ConnexionDB();
     $maConnexion = $connexionDB->get_connexion();
 
-    // Construction de la requête SQL
-    $sql = "UPDATE proprietaire SET ";
-    $updateFields = array();
+    // Vérifiez d'abord si le numéro du propriétaire connecté est défini
+    if ($num_proprietaire_connecte !== null) {
+        // Construction de la requête SQL
+        $sql = "UPDATE proprietaire SET ";
+        $updateFields = array();
 
-    // Ajoutez les champs à mettre à jour seulement s'ils sont fournis avec des valeurs non nulles
-    if ($nouveauNom !== null) $updateFields[] = "nom_prop = :nouveauNom";
-    if ($nouveauPrenom !== null) $updateFields[] = "prenom_prop = :nouveauPrenom";
-    if ($nouvelleAdresse !== null) $updateFields[] = "adresse_prop = :nouvelleAdresse";
-    if ($nouveauCodePostal !== null) $updateFields[] = "cp_prop = :nouveauCodePostal";
-    if ($nouveauTelephone !== null) $updateFields[] = "tel_prop = :nouveauTelephone";
-    if ($nouveauLogin !== null) $updateFields[] = "login_prop = :nouveauLogin";
+        // Ajoutez les champs à mettre à jour seulement s'ils sont fournis avec des valeurs non nulles
+        if ($nouveauNom !== null) $updateFields[] = "nom_prop = :nouveauNom";
+        if ($nouveauPrenom !== null) $updateFields[] = "prenom_prop = :nouveauPrenom";
+        if ($nouvelleAdresse !== null) $updateFields[] = "adresse_prop = :nouvelleAdresse";
+        if ($nouveauCodePostal !== null) $updateFields[] = "cp_prop = :nouveauCodePostal";
+        if ($nouveauTelephone !== null) $updateFields[] = "tel_prop = :nouveauTelephone";
+        if ($nouveauLogin !== null) $updateFields[] = "login_prop = :nouveauLogin";
 
-    $sql .= implode(", ", $updateFields);
-    $sql .= " WHERE numero_prop = :num_proprietaire_connecte";
+        $sql .= implode(", ", $updateFields);
+        $sql .= " WHERE numero_prop = :num_proprietaire_connecte"; // Correction ici
 
-    try {
-        $stmt = $maConnexion->prepare($sql);
+        try {
+            $stmt = $maConnexion->prepare($sql);
 
-        // Ajoutez les liaisons de paramètres seulement pour les champs fournis avec des valeurs non nulles
-        if ($nouveauNom !== null) $stmt->bindParam(':nouveauNom', $nouveauNom);
-        if ($nouveauPrenom !== null) $stmt->bindParam(':nouveauPrenom', $nouveauPrenom);
-        if ($nouvelleAdresse !== null) $stmt->bindParam(':nouvelleAdresse', $nouvelleAdresse);
-        if ($nouveauCodePostal !== null) $stmt->bindParam(':nouveauCodePostal', $nouveauCodePostal);
-        if ($nouveauTelephone !== null) $stmt->bindParam(':nouveauTelephone', $nouveauTelephone);
-        if ($nouveauLogin !== null) $stmt->bindParam(':nouveauLogin', $nouveauLogin);
+            // Ajoutez les liaisons de paramètres seulement pour les champs fournis avec des valeurs non nulles
+            if ($nouveauNom !== null) $stmt->bindParam(':nouveauNom', $nouveauNom);
+            if ($nouveauPrenom !== null) $stmt->bindParam(':nouveauPrenom', $nouveauPrenom);
+            if ($nouvelleAdresse !== null) $stmt->bindParam(':nouvelleAdresse', $nouvelleAdresse);
+            if ($nouveauCodePostal !== null) $stmt->bindParam(':nouveauCodePostal', $nouveauCodePostal);
+            if ($nouveauTelephone !== null) $stmt->bindParam(':nouveauTelephone', $nouveauTelephone);
+            if ($nouveauLogin !== null) $stmt->bindParam(':nouveauLogin', $nouveauLogin);
 
-        // Ajoutez la liaison pour :num_proprietaire_connecte
-        $stmt->bindParam(':num_proprietaire_connecte', $num_proprietaire_connecte);
+            // Ajoutez la liaison pour le numéro du propriétaire connecté
+            $stmt->bindParam(':num_proprietaire_connecte', $num_proprietaire_connecte);
 
-        $stmt->execute();
+            $stmt->execute();
 
-        // Modification réussie, renvoie une réponse JSON
-        $response = array('status' => 'success');
-        echo json_encode($response);
-        return true; // Succès de la modification
-    } catch (PDOException $e) {
-        // Affichez le message d'erreur spécifique
-        error_log('Erreur de modification du proprio : ' . $e->getMessage());
+            // Modification réussie
+            return true;
+        } catch (PDOException $e) {
+            // Affichez le message d'erreur spécifique
+            error_log('Erreur de modification du propriétaire : ' . $e->getMessage());
 
-        // En cas d'erreur, renvoie une réponse JSON avec un message
-        $response = array('status' => 'error', 'message' => 'Erreur de modification du proprio : ' . $e->getMessage());
-        echo json_encode($response);
-        return false; // En cas d'erreur
+            // En cas d'erreur, retournez false
+            return false;
+        }
+    } else {
+        // Si le numéro du propriétaire connecté n'est pas défini, retournez false
+        return false;
     }
 }
+
+
+
+
+
  
 public static function supprimerProprietaire($numero_prop) {
     error_log("Function supprimerProprietaire called for numero_prop=" . $numero_prop);
@@ -215,4 +223,5 @@ public function getLoyerTotalParProprietaire($numero_prop) {
     }
 }
 }
+// Vous n'avez pas besoin de cette accolade supplémentaire
 ?>
