@@ -1,5 +1,10 @@
 <?php
 session_start();
+if (!isset($_SESSION['user_id'])) {
+    // Redirection vers la page de connexion
+    header("Location: ../index.php");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>

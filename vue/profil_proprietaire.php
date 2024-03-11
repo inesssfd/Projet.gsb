@@ -1,4 +1,18 @@
-
+<?php
+// Inclure le contrôleur pour obtenir les détails du propriétaire
+include_once '../controleur/controleur_proprietaire.php';
+// Créer une instance de ProprietaireController
+$controller = new ProprietaireController();
+$num_proprietaire_connecte = isset($_SESSION['numero_prop']) ? $_SESSION['numero_prop'] : null;
+// Appel de la méthode pour obtenir les détails du propriétaire
+$details_proprietaire = $controller->getDetailsProprietaire();
+$loyerTotal = $controller->recupererLoyerTotal();
+if (!isset($_SESSION['numero_prop'])) {
+    // Redirection vers la page de connexion
+    header("Location: ../index.php");
+    exit;
+}
+        ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,16 +35,6 @@
 
     <div id="profil" class="cbody">
         <h2>Profil du Propriétaire</h2>
-        <?php
-// Inclure le contrôleur pour obtenir les détails du propriétaire
-include_once '../controleur/controleur_proprietaire.php';
-// Créer une instance de ProprietaireController
-$controller = new ProprietaireController();
-$num_proprietaire_connecte = isset($_SESSION['numero_prop']) ? $_SESSION['numero_prop'] : null;
-// Appel de la méthode pour obtenir les détails du propriétaire
-$details_proprietaire = $controller->getDetailsProprietaire();
-$loyerTotal = $controller->recupererLoyerTotal();
-        ?>
         <?php if (!empty($details_proprietaire)) : ?>
             <ul>
             <li><strong>Nom:</strong> <span id="nom_prop" contenteditable="true"><?php echo $details_proprietaire['nom_prop']; ?></span></li>

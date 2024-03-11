@@ -1,5 +1,11 @@
 <?php
 session_start();
+if (!isset($_SESSION['num_demandeur']) && !isset($_SESSION['numero_prop'])) {
+    // Redirection vers la page de connexion
+    header("Location: ../index.php");
+    exit;
+}
+
 
 // Inclure la classe Visite ici (assurez-vous que le chemin est correct)
 include_once '../modele/modele_visite.php';

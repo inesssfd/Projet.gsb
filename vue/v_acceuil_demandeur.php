@@ -33,7 +33,7 @@ $appartements_demandeur = Appartement::getAppartementsSansLocataire();
     <ul>
         <li><a href="v_acceuil_demandeur.php">Accueil</a></li>
         <li><a href="appartement_loué.php">Visites et profil du demandeur</a></li>
-        <div>Bienvenue, <?php echo (isset($_SESSION['login']) ? $_SESSION['login'] : 'Invité'); ?> (Numéro Demandeur: <?php echo isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : 'N/A'; ?>) | <a href="../index.php">Déconnexion</a></div>
+        <div>Bienvenue, <?php echo (isset($_SESSION['login']) ? $_SESSION['login'] : 'Invité'); ?> (Numéro Demandeur: <?php echo isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : 'N/A'; ?>) | <a href="../modele/deconnexion.php">Déconnexion</a></div>
 
         <li>
         <form method="GET" action="v_acceuil_demandeur.php" class="search-form">

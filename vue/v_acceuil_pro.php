@@ -2,12 +2,15 @@
 session_start();
 include_once '../modele/modele_app.php';
 
-// Check if the owner is logged in
 if (isset($_SESSION['numero_prop'])) {
     $numero_prop = $_SESSION['numero_prop'];
 
-    // Fetch apartments for the logged-in owner
+    // Récupérer les appartements pour le propriétaire connecté
     $appartements = Appartement::getAllAppartementsByProprietaire($numero_prop);
+} else {
+    // Redirection vers la page de connexion si le propriétaire n'est pas connecté
+    header("Location: ../index.php");
+    exit;
 }
 
 ?>

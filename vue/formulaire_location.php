@@ -29,15 +29,18 @@ session_start();
 <div class="container">
     <div class="form-container">
     <h1>Location</h1>
-        <?php if (!empty($confirmation)) : ?>
-            <div class="error-message"><?php echo $confirmation; ?></div>
-        <?php endif; ?>
+    <?php
+        // Afficher les messages d'erreur s'il y en a dans l'URL
+        if (isset($_GET['error'])) {
+            echo "<ul>";
+            foreach ($_GET['error'] as $error) {
+                echo "<li style='color: red;'>" . htmlspecialchars($error) . "</li>";
+            }
+            echo "</ul>";
+        }
+        ?>
         <form method="POST" action="../controleur/controleur_locc.php" enctype="application/x-www-form-urlencoded">
-            <?php if (!empty($confirmation)) : ?>
-                <script>
-                    alert('<?php echo $confirmation; ?>');
-                </script>
-            <?php endif; ?>
+        <input type="hidden" name="action" value="inscription">
                         <div class="input-wrapper">
                 <label for="prenom_loc">Prénom:</label>
                 <input type="text" id="prenom_loc" name="prenom_loc" value="<?php echo isset($_SESSION['prenom_demandeur']) ? htmlspecialchars($_SESSION['prenom_demandeur']) : ''; ?>" required>

@@ -5,8 +5,9 @@ include_once '..\modele\modele_loc.php';
 
 // Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['user_id'])) {
-    header('Location: accueil.php'); // Rediriger vers la page d'accueil si l'utilisateur n'est pas connecté
-    exit();
+    // Redirection vers la page de connexion
+    header("Location: ../index.php");
+    exit;
 }
 
 // Créer une instance de la classe Locataire
