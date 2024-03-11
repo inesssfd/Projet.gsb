@@ -49,7 +49,7 @@
             </div>
              <div class="input-wrapper">
                 <label for="motdepasse_demandeur">Mot de passe :</label>
-                <input type='text' name='motdepasse_demandeur' size='64' value=''id="motdepasse_demandeur">
+                <input type='password' name='motdepasse_demandeur' size='64' value=''id="motdepasse_demandeur">
             </div>
             <td colspan="2"><input type='submit' value='Ajouter'></label>
             </div>

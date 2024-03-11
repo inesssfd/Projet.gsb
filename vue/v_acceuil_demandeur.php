@@ -33,7 +33,7 @@ $appartements_demandeur = Appartement::getAppartementsSansLocataire();
     <ul>
         <li><a href="v_acceuil_demandeur.php">Accueil</a></li>
         <li><a href="appartement_loué.php">Visites et profil du demandeur</a></li>
-        <div>Bienvenue, <?php echo (isset($_SESSION['login']) ? $_SESSION['login'] : 'Invité'); ?> (Numéro Demandeur: <?php echo isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : 'N/A'; ?>) | <a href="../modele/deconnexion.php">Déconnexion</a></div>
+        <div>Bienvenue, <?php echo (isset($_SESSION['login']) ? $_SESSION['login'] : 'Invité'); ?> (Numéro Demandeur: <?php echo isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : 'N/A'; ?>) | <a href="../index.php">Déconnexion</a></div>
 
         <li>
         <form method="GET" action="v_acceuil_demandeur.php" class="search-form">
@@ -92,11 +92,13 @@ $appartements_demandeur = Appartement::getAppartementsSansLocataire();
     </ul>
 </nav>
 
-<div class="appartements-container">
-    <h2>Liste des Appartements</h2>
+<div>
     <?php
+    echo '<div class="appartements-container">';
+    echo "<h2>Liste des Appartements</h2>";
     $num_demandeur_connecte = isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : null;
     echo "Numéro du demandeur connecté : " . $num_demandeur_connecte;
+    // Counter for controlling the layout
     $apartments_in_row = 0;
 
     foreach ($appartements_demandeur as $appartement) {
@@ -126,9 +128,10 @@ $appartements_demandeur = Appartement::getAppartementsSansLocataire();
 
         $apartments_in_row++;
     }
+
+    echo "</div>";
     ?>
 </div>
-
 
 
 <div id="myModal" class="modal">
