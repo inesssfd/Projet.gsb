@@ -27,15 +27,17 @@ if (!isset($_SESSION['numero_prop'])) {
     <form method="POST" action="../controleur/controleur_app.php" class="center-form">
     <input type="hidden" name="action" value="ajouterAppartement">
     <h1>Ajouter un Appartement</h1>
-    <?php if (isset($_SESSION['confirmation'])) : ?>
-    <div class="alert alert-danger">
-        <?php echo $_SESSION['confirmation']; ?>
-    </div>
-    <?php unset($_SESSION['confirmation']); ?> <!-- Supprimer le message de confirmation de la session après l'avoir affiché -->
-<?php endif; ?>
-
-
-     <label  class="formulaire"for="type_appt">Type d'Appartement:</label>
+    <?php
+        // Afficher les messages d'erreur s'il y en a dans l'URL
+        if (isset($_GET['error'])) {
+            echo "<ul>";
+            foreach ($_GET['error'] as $error) {
+                echo "<li style='color: red;'>" . htmlspecialchars($error) . "</li>";
+            }
+            echo "</ul>";
+        }
+        ?> <!-- Supprimer le message de confirmation de la session après l'avoir affiché -->
+<label  class="formulaire"for="type_appt">Type d'Appartement:</label>
 <select id="type_appt" name="type_appt" required>
     <option value="Studio">Studio</option>
     <option value="T1">T1</option>
@@ -109,8 +111,6 @@ if (!isset($_SESSION['numero_prop'])) {
 
      <label  class="formulaire"for="numero_prop">Numéro du Propriétaire :</label>
 <input type="hidden" id="numero_prop" name="numero_prop" value="<?php echo isset($_SESSION['numero_prop']) ? $_SESSION['numero_prop'] : ''; ?>">
-<span><?php echo isset($_SESSION['numero_prop']) ? $_SESSION['numero_prop'] : ''; ?></span> <!-- Affichage pour confirmation (facultatif) -->
-
     <input type="submit" value="Ajouter Appartement">
 </form>
 

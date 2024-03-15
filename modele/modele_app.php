@@ -102,7 +102,7 @@ class Appartement {
         {
             // Requête SQL d'insertion
             $sql = "INSERT INTO appartement (type_appt, prix_loc, prix_charge, rue, arrondisement, etage, ascenceur, preavis, date_libre, numero_prop) 
-                    VALUES (:type_appt, :prix_loc, :prix_charge, :rue, :arrondisement, :etage, :ascenseur, :preavis, :date_libre, :numero_prop)";
+                    VALUES (:type_appt, :prix_loc, :prix_charge, :rue, :arrondisement, :etage, :ascenceur, :preavis, :date_libre, :numero_prop)";
             
             try {
                 $stmt = $this->maConnexion->prepare($sql);
@@ -112,7 +112,7 @@ class Appartement {
                 $stmt->bindParam(':rue', $this->rue);
                 $stmt->bindParam(':arrondisement', $this->arrondisement);
                 $stmt->bindParam(':etage', $this->etage);
-                $stmt->bindParam(':ascenseur', $this->ascenseur);
+                $stmt->bindParam(':ascenceur', $this->ascenceur);
                 $stmt->bindParam(':preavis', $this->preavis);
                 $stmt->bindParam(':date_libre', $this->date_libre);
                 $stmt->bindParam(':numero_prop', $this->numero_prop);
@@ -292,7 +292,46 @@ class Appartement {
             return false;
         }
     }
+    public static function getAppartementsDisponiblesAPartirDe($date_recherche) {
+        $connexionDB = new ConnexionDB();
+        $maConnexion = $connexionDB->get_connexion();
+        
+        try {
+            // Sélectionnez les appartements avec une date libre supérieure ou égale à la date de recherche
+            $sql = "SELECT * FROM appartement WHERE date_libre >= :date_recherche";
+            $stmt = $maConnexion->prepare($sql);
+            $stmt->bindParam(':date_recherche', $date_recherche);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Créez des objets Appartement à partir des résultats
+            $appartements = [];
+            foreach ($result as $appartementData) {
+                $appartement = new Appartement(
+                    $appartementData['num_appt'],
+                    $appartementData['type_appt'],
+                    $appartementData['prix_loc'],
+                    $appartementData['prix_charge'],
+                    $appartementData['rue'],
+                    $appartementData['arrondisement'],
+                    $appartementData['etage'],
+                    $appartementData['ascenceur'],
+                    $appartementData['preavis'],
+                    $appartementData['date_libre'],
+                    $appartementData['numero_prop']
+                );
+                $appartements[] = $appartement;
+            }
     
+            return $appartements;
+        } catch (PDOException $e) {
+            // Gérez les exceptions ici (par exemple, en les enregistrant dans un fichier de journal)
+            return false;
+        }
     }
+ 
+    }
+    
+    
 
 ?>

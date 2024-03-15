@@ -10,6 +10,7 @@ if (!isset($_SESSION['num_demandeur']) && !isset($_SESSION['numero_prop'])) {
 // Inclure la classe Visite ici (assurez-vous que le chemin est correct)
 include_once '../modele/modele_visite.php';
 include_once '../modele/modele_demandeur.php';
+include_once '../modele/modele_demande.php';
 // Récupérer le numéro du demandeur connecté depuis la session
 $num_demandeur_connecte = isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : null;
 // Récupérer le profil du demandeur connecté
@@ -63,15 +64,18 @@ $visites_prevues = (new Visite())->getVisitesByDemandeur($num_demandeur_connecte
         echo "<button onclick=\"modifierDate(" . $visite_prevue['id_visite'] . ")\">Modifier</button>";
     
         // Ajouter le bouton "Loué" avec un appel à la fonction louerLocataire
-        echo "<button onclick=\"louerLocataire(" . $visite_prevue['num_appt'] . ")\">Louer</button>";
-    
+        //echo "<button onclick=\"louerLocataire(" . $visite_prevue['num_appt'] . ")\">Louer</button>";
+        echo "<a href=\"formulaire_demande.php?num_appt=" . $visite_prevue['num_appt'] . "&num_demandeur=" . $num_demandeur_connecte . "\">Faire une demande de location</a>";
         // Ajouter le bouton "Supprimer" avec un appel à la fonction supprimerVisite
         echo "<button onclick=\"supprimerVisite(" . $visite_prevue['id_visite'] . ")\">Supprimer</button>";
     
         echo "</div>";
         $count++;
     }
+    
     ?>
+    
+    
 </div>
 </body>
 </html>

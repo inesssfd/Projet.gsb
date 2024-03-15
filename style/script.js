@@ -70,7 +70,6 @@ function modifierAppartement(num_appt, num_prop) {
 
 
 
-
     // Fonction pour rediriger vers un formulaire de location
     function louerLocataire(numAppt) {
     window.location.href = "formulaire_location.php?num_appt=" + numAppt;

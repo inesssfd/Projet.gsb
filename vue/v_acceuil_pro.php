@@ -12,7 +12,7 @@ if (isset($_SESSION['numero_prop'])) {
     header("Location: ../index.php");
     exit;
 }
-
+include_once '../modele/modele_demande.php';
 ?>
 
 <!DOCTYPE html>
@@ -23,7 +23,34 @@ if (isset($_SESSION['numero_prop'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="../style/script.js" defer></script>
     <link rel="stylesheet" href="../style/style_appartement.css">
-
+    <script>
+    function modifierEtatDemande(id_demandes_location, nouvelEtat) {
+        // Vérifiez si l'ID de demande est valide
+        if (id_demandes_location !== null && id_demandes_location !== undefined) {
+            // Envoyer une requête AJAX au serveur pour modifier l'état de la demande
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "../controleur/modifier_etat_demande.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // La requête a été traitée avec succès
+                        // Vous pouvez ajouter ici des actions supplémentaires si nécessaire
+                        console.log("L'état de la demande a été modifié avec succès.");
+                    } else {
+                        // Il y a eu une erreur lors du traitement de la requête
+                        console.error("Une erreur s'est produite lors de la modification de l'état de la demande.");
+                    }
+                }
+            };
+            // Envoyer les données de la demande à modifier
+            xhr.send("id_demande=" + id_demandes_location + "&nouvel_etat=" + nouvelEtat);
+        } else {
+            // Afficher un message d'erreur si l'ID de demande n'est pas valide
+            console.error("ID de demande invalide.");
+        }
+    }
+    </script>
 </head>
 
 <body>
@@ -41,12 +68,10 @@ if (isset($_SESSION['numero_prop'])) {
         </nav>
     </header>
 
-    <!-- Le reste du contenu de la page va ici -->
-
     <?php
     
-// Check if there are apartments to display
-if (isset($appartements) && !empty($appartements)) {
+
+    if (isset($appartements) && !empty($appartements)) {
     echo '<div class="appartements-container">';
     echo "<h2>Vos Appartements</h2>";
     echo "<ul>";
@@ -63,14 +88,35 @@ if (isset($appartements) && !empty($appartements)) {
         echo "<button class='custom-pro' onclick='modifierAppartement(" . $appartement['num_appt'] . ", " . $_SESSION['numero_prop'] . ")'>Modifier</button>";
         echo "</div>";  // Fermer la div pour le conteneur de boutons ici
         echo "</ul>";  // Fermer la liste interne ici
+
+        // Afficher les demandes associées à cet appartement dans la même structure que les appartements
+        $demandes_appartement = Demande::getDemandesByAppartement($appartement['num_appt']);
+        if (!empty($demandes_appartement)) {
+            echo "<div class='demandes-container'>";
+            echo "<h3>Demandes pour l'appartement " . $appartement['num_appt'] . "</h3>";
+            echo "<ul>";
+            foreach ($demandes_appartement as $demande) {
+                echo "<li>";
+                echo "<p>Date de la demande : " . $demande['date_demande'] . "</p>";
+                echo "<p>Statut : " . $demande['etat_demande'] . "</p>";
+                echo "<p>Num de Demandeur : " . $demande['num_demandeur'] . "</p>";
+                echo "<button onclick='modifierEtatDemande(" . $demande['id_demandes_location'] . ", \"Acceptée\")'>Accepter</button>";
+                echo "<button onclick='modifierEtatDemande(" . $demande['id_demandes_location'] . ", \"Refusée\")'>Refuser</button>";
+                echo "</li>";
+            }
+            echo "</ul>";
+            echo "</div>";
+        } else {
+            echo "<p>Aucune demande pour l'appartement " . $appartement['num_appt'] . "</p>";
+        }
+
         echo "</li>";
     }
-    echo "</ul>";  // Fermer la liste externe ici
+    echo "</ul>";
     echo "</div>";
 } else {
     echo "<p>Vous n'avez pas encore ajouté d'appartements.</p>";
 }
-
 
 ?>
 </body>
