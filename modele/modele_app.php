@@ -138,57 +138,8 @@ class Appartement {
     
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    public static function getAllAppartements() {
-        $connexionDB = new ConnexionDB();
-        $maConnexion = $connexionDB->get_connexion();
-    
-        $sql = "SELECT * FROM appartement";
-        $stmt = $maConnexion->query($sql);
-    
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
 
-    public static function getFilteredAppartements($type_appt, $arrondisement, $prix_loc) {
-        $connexionDB = new ConnexionDB();
-        $maConnexion = $connexionDB->get_connexion();
     
-        // Utilisez des paramètres liés pour éviter les injections SQL
-        $sql = "SELECT * FROM appartement WHERE 1";
-    
-        // Ajout des conditions en fonction des critères fournis
-        if (!empty($type_appt)) {
-            $sql .= " AND type_appt LIKE :type_appt";
-            $typeParam = "%" . $type_appt . "%";
-        }
-    
-        if (!empty($arrondisement)) {
-            $sql .= " AND arrondisement LIKE :arrondisement";
-            $arrondissementParam = "%" . $arrondisement . "%";
-        }
-    
-        if (!empty($prix_loc)) {
-            $sql .= " AND prix_loc <= :prix_loc";
-        }
-    
-        $stmt = $maConnexion->prepare($sql);
-    
-        // Liaison des paramètres conditionnels
-        if (isset($typeParam)) {
-            $stmt->bindParam(':type_appt', $typeParam, PDO::PARAM_STR);
-        }
-    
-        if (isset($arrondissementParam)) {
-            $stmt->bindParam(':arrondisement', $arrondissementParam, PDO::PARAM_STR);
-        }
-    
-        if (!empty($prix_loc)) {
-            $stmt->bindParam(':prix_loc', $prix_loc, PDO::PARAM_INT);
-        }
-    
-        $stmt->execute();
-    
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
     public static function supprimerAppartement($num_appt) {
         error_log("Fonction supprimerAppartement appelée pour num_appt=" . $num_appt);
         $connexionDB = new ConnexionDB();
@@ -286,12 +237,16 @@ class Appartement {
                 $appartements[] = $appartement;
             }
     
+            // Retournez le tableau d'objets Appartement
             return $appartements;
         } catch (PDOException $e) {
             // Gérez les exceptions ici (par exemple, en les enregistrant dans un fichier de journal)
             return false;
         }
     }
+    
+    
+
     public static function getAppartementsDisponiblesAPartirDe($date_recherche) {
         $connexionDB = new ConnexionDB();
         $maConnexion = $connexionDB->get_connexion();

@@ -7,7 +7,6 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 include_once '../modele/modele_app.php';
-
 class AppartementController {
     private $confirmation = '';
     private $errors = [];
@@ -24,59 +23,62 @@ class AppartementController {
             }
         }
     }
+    
     public function getConfirmation() {
         return $this->confirmation;
     }
-    
-    public static function getFilteredAppartements() {
-        $type_appt = isset($_GET['type_appt']) ? $_GET['type_appt'] : '';
-        $arrondisement = isset($_GET['arrondisement']) ? $_GET['arrondisement'] : '';
-        $prix_loc = isset($_GET['prix_loc']) ? $_GET['prix_loc'] : PHP_INT_MAX;
-    
-        // Filtrer les appartements en fonction des critères de recherche
-        return Appartement::getFilteredAppartements($type_appt, $arrondisement, $prix_loc);
+    public static function getAppartementsSansLocataire() {
+        try {
+            // Appeler la méthode statique de la classe Appartement pour récupérer les appartements sans locataire
+            return Appartement::getAppartementsSansLocataire();
+        } catch (PDOException $e) {
+            // Gérer les exceptions PDO ici (par exemple, en les enregistrant dans un fichier journal)
+            return false;
+        }
     }
     
-        private function ajouterAppartement() {
-            // Validation du prix_loc pour s'assurer qu'il ne contient que des chiffres
-            if (!$this->champ_prix()) {
-                $this->errors[] = "Les champs prix et ascenceur ne doivent contenir que des chiffres.";
-                $this->redirigerAvecErreurs($this->errors);
-                return;
-            }
-            
-            $num_appt = $_POST['num_appt'];
-            $type_appt = $_POST['type_appt'];
-            $prix_loc = $_POST['prix_loc'];
-            $prix_charge = $_POST['prix_charge'];
-            $rue = $_POST['rue'];
-            $arrondisement = $_POST['arrondisement'];
-            $etage = $_POST['etage'];
-            $ascenceur = $_POST['ascenceur'];
-            $preavis = $_POST['preavis'];
-            $date_libre = $_POST['date_libre'];
-            $numero_prop = $_POST['numero_prop'];
-        
-            $appartement = new Appartement($num_appt, $type_appt, $prix_loc, $prix_charge, $rue, $arrondisement, $etage, $ascenceur, $preavis, $date_libre, $numero_prop);
-        
-            try {
-                if ($appartement->ajouterAppartement()) {
-                    // Redirection avec un message de succès
-                    header('Location: ../vue/v_acceuil_pro.php?success=1');
-                    exit();
-                } else {
-                    // En cas d'échec, stocker le message d'erreur dans la variable de session
-                    $_SESSION['confirmation'] = "Erreur lors de l'ajout de l'appartement vous avez deja trop d'appartement";
-                }
-            } catch (PDOException $e) {
-                // En cas d'erreur PDO, affichez le message d'erreur spécifique
-                $_SESSION['confirmation'] = "Erreur lors de l'ajout de l'appartement : " . $e->getMessage();
-            }
+    private function ajouterAppartement() {
+        // Validation du prix_loc pour s'assurer qu'il ne contient que des chiffres
+        if (!$this->champ_prix()) {
+            $this->errors[] = "Les champs prix et ascenceur ne doivent contenir que des chiffres.";
+            $this->redirigerAvecErreurs();
+            return;
         }
+        
+        $num_appt = $_POST['num_appt'];
+        $type_appt = $_POST['type_appt'];
+        $prix_loc = $_POST['prix_loc'];
+        $prix_charge = $_POST['prix_charge'];
+        $rue = $_POST['rue'];
+        $arrondisement = $_POST['arrondisement'];
+        $etage = $_POST['etage'];
+        $ascenceur = $_POST['ascenceur'];
+        $preavis = $_POST['preavis'];
+        $date_libre = $_POST['date_libre'];
+        $numero_prop = $_POST['numero_prop'];
+    
+        $appartement = new Appartement($num_appt, $type_appt, $prix_loc, $prix_charge, $rue, $arrondisement, $etage, $ascenceur, $preavis, $date_libre, $numero_prop);
+    
+        try {
+            if ($appartement->ajouterAppartement()) {
+                // Redirection avec un message de succès
+                header('Location: ../vue/v_acceuil_pro.php?success=1');
+                exit();
+            } else {
+                // En cas d'échec, stocker le message d'erreur dans la variable de session
+                $_SESSION['confirmation'] = "Erreur lors de l'ajout de l'appartement vous avez deja trop d'appartement";
+                $this->confirmation = $_SESSION['confirmation'];
+            }
+        } catch (PDOException $e) {
+            // En cas d'erreur PDO, affichez le message d'erreur spécifique
+            $_SESSION['confirmation'] = "Erreur lors de l'ajout de l'appartement : " . $e->getMessage();
+            $this->confirmation = $_SESSION['confirmation'];
+        }
+    }
 
-        private function champ_prix() {
-            return preg_match("/^\d+$/", $_POST['prix_loc']) && preg_match("/^\d+$/", $_POST['prix_charge'])&& preg_match("/^\d+$/", $_POST['etage']);
-        }
+    private function champ_prix() {
+        return preg_match("/^\d+$/", $_POST['prix_loc']) && preg_match("/^\d+$/", $_POST['prix_charge'])&& preg_match("/^\d+$/", $_POST['etage']);
+    }
     
     
     private function modifierAppartement() {
@@ -100,10 +102,7 @@ class AppartementController {
             $this->confirmation = "Erreur lors de la modification de l'appartement.";
         }
     }
-    public function rechercherAppartementsDisponibles($date_recherche) {
-        // Filtrer les appartements disponibles à partir de la date de recherche
-        return Appartement::getAppartementsDisponiblesAPartirDe($date_recherche);
-    }
+    
     private function redirigerAvecErreurs() {
         $errorString = implode("&", array_map(function($error) {
             return "error[]=" . urlencode($error);
@@ -112,8 +111,6 @@ class AppartementController {
         header("Location: ../vue/ajouter_logement.php?" . $errorString);
         exit();
     }
-
-
 }
 
 $controller = new AppartementController();

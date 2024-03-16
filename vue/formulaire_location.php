@@ -87,11 +87,6 @@ if (!isset($_SESSION['num_demandeur']) && !isset($_SESSION['numero_prop'])) {
                 <label for="tel_banque">Téléphone de la banque:</label>
                 <input type="tel" id="tel_banque" name="tel_banque" required>
             </div>
-
-            <div class="input-wrapper">
-                <label for="tel_banque">Téléphone de la banque:</label>
-                <input type="tel" id="tel_banque" name="tel_banque" required>
-            </div>
             <div class="input-wrapper">
                 <label for="login_loc">Identifiant de connexion:</label>
                 <input type="text" id="login_loc" name="login_loc" value="<?php echo isset($_SESSION['login']) ? htmlspecialchars($_SESSION['login']) : ''; ?>" readonly>

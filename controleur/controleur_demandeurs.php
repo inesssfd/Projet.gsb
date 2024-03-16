@@ -43,6 +43,11 @@ public function modifierDemandeur() {
 }
 
     private function inscription() {
+        if ($this->demandeurs->loginExiste($_POST['login'])) {
+            $this->errors[] = "Ce login est déjà utilisé. Veuillez choisir un autre login.";
+            $this->redirigerAvecErreurs();
+            return;
+        }
         // Vérifier les champs vides
         if ($this->champsVides()) {
             $this->errors[] = "Tous les champs doivent être remplis.";

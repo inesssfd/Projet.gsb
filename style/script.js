@@ -86,24 +86,26 @@ function supprimerVisite(id_visite) {
         };
 
         // Envoyer la requête POST vers le fichier PHP côté serveur (class_visite.php dans ce cas)
-        xhr.open('POST', '../modele/modele_visite.php', true);
+        xhr.open('POST', '../controleur/controleur_visite.php?action=deleteVisit"', true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.send('id_visite=' + id_visite + '&action=deleteVisit');
     }
         function showVisitForm(num_appt, num_demandeur) {
         var formHTML = `
-            <h2>Formulaire de Visite</h2>
-            <form action="../controleur/controleur_visite.php" method="post">
-                <input type="hidden" name="num_demandeur" value="${num_demandeur}">
-                
-                <label for="num_appt">Numéro de l'appartement :</label>
-                <input type="text" name="num_appt" id="num_appt" value="${num_appt}" required class="form-input" readonly>
-                
-                <label for="date_visite">Date de visite :</label>
-                <input type="date" name="date_visite" id="date_visite" required class="form-input"><br>
-                
-                <input type="submit" class="visit-button" value="Planifier la visite">
-            </form>
+        <h2>Formulaire de Visite</h2>
+        <form action="../controleur/controleur_visite.php" method="post">
+            <!-- Champ caché pour spécifier l'action -->
+            <input type="hidden" name="action" value="traiterVisite">
+        
+            <!-- Reste du formulaire -->
+            <input type="hidden" name="num_demandeur" value="${num_demandeur}">
+            <label for="num_appt">Numéro de l'appartement :</label>
+            <input type="text" name="num_appt" id="num_appt" value="${num_appt}" required class="form-input" readonly>
+            <label for="date_visite">Date de visite :</label>
+            <input type="date" name="date_visite" id="date_visite" required class="form-input"><br>
+            <input type="submit" class="visit-button" value="Planifier la visite">
+        </form>
+        
         `;
     
         // Obtenez le conteneur modal

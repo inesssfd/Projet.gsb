@@ -95,9 +95,22 @@ try {
             return false;
         }
     }
+
+
+public function supprimerVisite($id_visite) {
+    try {
+        $sql = "DELETE FROM visite WHERE id_visite = :id_visite";
+        $stmt = $this->maConnexion->prepare($sql);
+        $stmt->bindParam(':id_visite', $id_visite, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return true; // Succès de la suppression
+    } catch (PDOException $e) {
+        echo "Erreur PDO lors de la préparation ou de l'exécution de la requête : " . $e->getMessage();
+        return false;
+    }
 }
-
-
+}
 
 
 // Reste du code inchangé...

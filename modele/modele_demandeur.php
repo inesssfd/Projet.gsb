@@ -179,6 +179,14 @@ public function supprimerDemandeur($num_demandeur) {
             return false; // En cas d'erreur
         }
     }
+    public function loginExiste($login) {
+        $requete = "SELECT COUNT(*) AS count FROM demandeurs WHERE login = ?";
+        $statement = $this->maConnexion->prepare($requete);
+        $statement->execute([$login]);
+        $resultat = $statement->fetch(PDO::FETCH_ASSOC);
+        return $resultat['count'] > 0;
+    }
+    
     
     
 

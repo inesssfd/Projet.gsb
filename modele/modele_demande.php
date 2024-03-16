@@ -83,6 +83,15 @@ public function updateetat_demande($etat_demande, $id_demandes_location) {
 
 
 
+public static function getDemandeByDemandeurAndAppt($num_demandeur, $num_appt) {
+    $connexionDB = new ConnexionDB();
+    $connexion = $connexionDB->get_connexion();
+    $requete = "SELECT * FROM demandes_location WHERE num_demandeur = :num_demandeur AND num_appt = :num_appt";
+    $statement = $connexion->prepare($requete);
+    $statement->execute(['num_demandeur' => $num_demandeur, 'num_appt' => $num_appt]);
+    $resultat = $statement->fetch(PDO::FETCH_ASSOC);
+    return $resultat;
+}
 
 
 
