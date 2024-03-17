@@ -206,6 +206,77 @@ class Appartement {
             return false; // En cas d'erreur
         }
     }
+    public static function rechercherAppartements($arrondissement, $prixMax, $typeAppt) {
+        try {
+            $connexionDB = new ConnexionDB();
+            $maConnexion = $connexionDB->get_connexion();
+    
+            // Construire la requête SQL en fonction des critères de recherche fournis
+            $sql = "SELECT * FROM appartement WHERE 1=1";
+    
+            if (!empty($arrondissement)) {
+                $sql .= " AND arrondisement = :arrondissement";
+            }
+    
+            if (!empty($prixMax)) {
+                $sql .= " AND prix_loc <= :prixMax";
+            }
+    
+            if (!empty($typeAppt)) {
+                $sql .= " AND type_appt = :typeAppt";
+            }
+    
+            // Exclure les appartements avec des locataires
+            $sql .= " AND num_appt NOT IN (SELECT num_appt FROM locataire)";
+    
+            // Préparer la requête
+            $stmt = $maConnexion->prepare($sql);
+    
+            // Lier les paramètres s'ils sont définis
+            if (!empty($arrondissement)) {
+                $stmt->bindValue(':arrondissement', $arrondissement);
+            }
+    
+            if (!empty($prixMax)) {
+                $stmt->bindValue(':prixMax', $prixMax);
+            }
+    
+            if (!empty($typeAppt)) {
+                $stmt->bindValue(':typeAppt', $typeAppt);
+            }
+    
+            // Exécuter la requête
+            $stmt->execute();
+    
+            // Récupérer les résultats sous forme de tableau associatif
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            // Créer des objets Appartement à partir des résultats
+            $appartements = [];
+            foreach ($result as $appartementData) {
+                $appartement = new Appartement(
+                    $appartementData['num_appt'],
+                    $appartementData['type_appt'],
+                    $appartementData['prix_loc'],
+                    $appartementData['prix_charge'],
+                    $appartementData['rue'],
+                    $appartementData['arrondisement'],
+                    $appartementData['etage'],
+                    $appartementData['ascenceur'],
+                    $appartementData['preavis'],
+                    $appartementData['date_libre'],
+                    $appartementData['numero_prop']
+                );
+                $appartements[] = $appartement;
+            }
+    
+            // Retourner le tableau d'objets Appartement
+            return $appartements;
+        } catch (PDOException $e) {
+            // Gérer les exceptions PDO ici (par exemple, en les enregistrant dans un fichier journal)
+            return false;
+        }
+    }
     
     public static function getAppartementsSansLocataire() {
         try {

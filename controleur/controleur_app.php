@@ -21,6 +21,9 @@ class AppartementController {
                     $this->modifierAppartement();
                 }
             }
+            if (isset($_GET['action']) && $_GET['action'] === 'rechercherAppartements') {
+                $this->rechercherAppartements();
+            }
         }
     }
     
@@ -34,6 +37,17 @@ class AppartementController {
         } catch (PDOException $e) {
             // Gérer les exceptions PDO ici (par exemple, en les enregistrant dans un fichier journal)
             return false;
+        }
+    }
+    private function rechercherAppartements() {
+        if (empty($_GET['type_appt']) && empty($_GET['arrondisement']) && empty($_GET['prix_loc'])) {
+            // Si tous les critères sont vides, charger tous les appartements
+            $appartements_demandeur = Appartement::getAppartementsSansLocataire();
+            echo "Les appartements ont été récupérés avec succès.";
+        } else {
+            // Sinon, effectuer la recherche d'appartements avec les critères spécifiés
+            $appartements_demandeur = Appartement::rechercherAppartements($_GET['type_appt'], $_GET['arrondisement'], $_GET['prix_loc']);
+            echo "La recherche d'appartements a été effectuée avec succès.";
         }
     }
     
@@ -112,6 +126,7 @@ class AppartementController {
         exit();
     }
 }
+
 
 $controller = new AppartementController();
 echo $controller->getConfirmation();

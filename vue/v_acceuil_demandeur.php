@@ -4,19 +4,28 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Vérifiez si la session est active et si l'utilisateur est connecté en tant que demandeur ou propriétaire
-if (!isset($_SESSION['num_demandeur']) && !isset($_SESSION['numero_prop'])) {
-    // Redirection vers la page de connexion
-    header("Location: ../index.php");
-    exit;
-}
-
 include_once '../modele/modele_app.php';
-include_once '../controleur/controleur_app.php';
-include_once '../controleur/controleur_visite.php';
 
 // Récupérer la liste des appartements
 $appartements_demandeur = Appartement::getAppartementsSansLocataire();
+
+if (isset($_GET['action']) && $_GET['action'] === 'rechercherAppartements') {
+    // Récupérer les valeurs des champs de recherche
+    $type_appt = isset($_GET['type_appt']) ? $_GET['type_appt'] : null;
+    $arrondisement = isset($_GET['arrondisement']) ? $_GET['arrondisement'] : null;
+    $prix_loc = isset($_GET['prix_loc']) ? $_GET['prix_loc'] : null;
+
+    // Appeler la méthode rechercherAppartements avec les valeurs de recherche
+    $appartements_demandeur = Appartement::rechercherAppartements($arrondisement, $prix_loc, $type_appt);
+
+    // Traiter les résultats de la recherche
+    if ($appartements_demandeur !== false) {
+        // La recherche a réussi, traitez les résultats ici
+    } else {
+        $appartements_demandeur = Appartement::getAppartementsSansLocataire();
+    }
+}
+
 
 ?>
 <!DOCTYPE html>
@@ -84,6 +93,7 @@ $appartements_demandeur = Appartement::getAppartementsSansLocataire();
     </select>
     <label for="prix_loc">Prix maximum :</label>
     <input type="text" name="prix_loc" id="prix_loc" class="search-form">
+    <input type="hidden" name="action" value="rechercherAppartements">
     <input type="submit" value="Rechercher" class="search-button">
 
 
@@ -97,8 +107,6 @@ $appartements_demandeur = Appartement::getAppartementsSansLocataire();
     echo '<div class="appartements-container">';
     echo "<h2>Liste des Appartements</h2>";
     $num_demandeur_connecte = isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : null;
-    echo "Numéro du demandeur connecté : " . $num_demandeur_connecte;
-    // Counter for controlling the layout
     $apartments_in_row = 0;
 
     foreach ($appartements_demandeur as $appartement) {
