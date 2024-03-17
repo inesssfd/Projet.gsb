@@ -39,6 +39,11 @@ class ProprietaireController {
     }
 
     private function inscription() {
+        if ($this->proprietaire->loginExiste($_POST['login_prop'])) {
+            $this->errors[] = "Ce login est déjà utilisé. Veuillez choisir un autre login.";
+            $this->redirigerAvecErreurs();
+            return;
+        }
         // Vérifier les champs vides
         if ($this->champsVides()) {
             $this->errors[] = "Tous les champs doivent être remplis.";

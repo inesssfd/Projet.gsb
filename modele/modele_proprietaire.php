@@ -58,7 +58,13 @@ class proprietaire {
             return false; // In case of error
         }
     }
-
+    public function loginExiste($login_prop) {
+        $requete = "SELECT COUNT(*) AS count FROM proprietaire WHERE login_prop = ?";
+        $statement = $this->maConnexion->prepare($requete);
+        $statement->execute([$login_prop]);
+        $resultat = $statement->fetch(PDO::FETCH_ASSOC);
+        return $resultat['count'] > 0;
+    }
     public function connexion_prop($login_prop, $motdepasse_pro)
     {
         try {

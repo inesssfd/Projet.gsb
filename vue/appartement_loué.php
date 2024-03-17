@@ -27,22 +27,7 @@ $visites_prevues = (new Visite())->getVisitesByDemandeur($num_demandeur_connecte
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../style/style_appartement.css">
-    <script> function supprimerVisite(id_visite) {
-        // Envoyer la demande de suppression au serveur en utilisant AJAX
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                // La suppression a réussi côté serveur, supprimez l'élément côté client
-                var visiteElement = document.getElementById('date_visite_' + id_visite).closest('.visite');
-                visiteElement.parentNode.removeChild(visiteElement);
-            }
-        };
-
-        // Envoyer la requête POST vers le fichier PHP côté serveur (class_visite.php dans ce cas)
-        xhr.open('POST', '../controleur/controleur_visite.php?action=deleteVisit"', true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.send('id_visite=' + id_visite + '&action=deleteVisit');
-    }</script>
+    <script src="../style/script.js" defer></script>
     <title>Visites du Demandeur</title>
 </head>
 <body class="cbody">
@@ -77,26 +62,35 @@ foreach ($visites_prevues as $visite_prevue) {
     $apartmentClass = 'apartment' . $count; // Dynamic class name
     echo "<div class='visite $apartmentClass'>";
     echo "<p> Date de visite : " . $visite_prevue['date_visite'] . " Appartement : " . $visite_prevue['num_appt'] . "</p>";
-
+   
     // Vérifier si la visite est une demande de location
     $demande = Demande::getDemandeByDemandeurAndAppt($_SESSION['num_demandeur'], $visite_prevue['num_appt']);
 
     if ($demande) {
-        // Si une demande existe, afficher l'état de la demande et sa date
-        echo "<p>Statut de la demande : " . $demande['etat_demande'] . "</p>";
-        echo "<p>Date de la demande : " . $demande['date_demande'] . "</p>";
-        echo "<a href=\"formulaire_location.php?num_appt=" . $visite_prevue['num_appt'] . "&num_demandeur=" . $num_demandeur_connecte . "\">Devenir locataire</a>";
+        if ($demande['etat_demande'] !== 'Refusée') { // Vérifie si la demande n'est pas refusée
+            // Si une demande existe et n'est pas refusée, afficher l'état de la demande et sa date
+            echo "<p>Statut de la demande : " . $demande['etat_demande'] . "</p>";
+            echo "<p>Date de la demande : " . $demande['date_demande'] . "</p>";
+            echo "<a class=\"link-button\" href=\"formulaire_location.php?num_appt=" . $visite_prevue['num_appt'] . "&num_demandeur=" . $num_demandeur_connecte . "\">Devenir locataire</a>";
+
+        } else {
+            // Si la demande est refusée, afficher un message indiquant que la demande est refusée
+            echo "<p>Statut de la demande : Refusée</p>";
+            echo "<p>Cette demande a été refusée.</p>";
+        }
     } else {
         // Si aucune demande n'existe, afficher les boutons "Modifier visite" et "Supprimer visite"
-        echo "<button onclick=\"modifierDate(" . $visite_prevue['id_visite'] . ")\">Modifier visite</button>";
         echo "<button onclick=\"supprimerVisite(" . $visite_prevue['id_visite'] . ")\">Supprimer visite</button>";
-        // Afficher le lien "Faire une demande de location" vers le formulaire de demande
-        echo "<a href=\"formulaire_demande.php?num_appt=" . $visite_prevue['num_appt'] . "&num_demandeur=" . $num_demandeur_connecte . "\">Faire une demande de location</a>";
+        echo "<button onclick=\"modifierDate(" . $visite_prevue['id_visite'] . ", '" . $visite_prevue['date_visite'] . "')\">Modifier visite</button>";
+        echo "<a class=\"link-button\" href=\"formulaire_demande.php?num_appt=" . $visite_prevue['num_appt'] . "&num_demandeur=" . $num_demandeur_connecte . "\">Faire une demande de location</a>";
+
     }
     
     echo "</div>";
     $count++;
 }
+
+
 
     
     

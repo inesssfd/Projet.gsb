@@ -81,22 +81,22 @@ try {
             return false;
         }
     }
-    public function updateDateVisite($id_visite, $nouvelle_date) {
-        try {
-            $sql = "UPDATE visite SET date_visite = :nouvelle_date WHERE id_visite = :id_visite";
-            $stmt = $this->maConnexion->prepare($sql);
-            $stmt->bindParam(':id_visite', $id_visite, PDO::PARAM_INT);
-            $stmt->bindParam(':nouvelle_date', $nouvelle_date);
-            $stmt->execute();
 
-            return true; // Succès de la mise à jour
+    public function modifierDateVisite($id_visite, $nouvelle_date_visite) {
+        try {
+            $sql = "UPDATE visite SET date_visite = :nouvelle_date_visite WHERE id_visite = :id_visite";
+            $stmt = $this->maConnexion->prepare($sql);
+            $stmt->bindParam(':nouvelle_date_visite', $nouvelle_date_visite);
+            $stmt->bindParam(':id_visite', $id_visite, PDO::PARAM_INT);
+            $stmt->execute();
+    
+            return true; // Succès de la modification
         } catch (PDOException $e) {
             echo "Erreur PDO lors de la préparation ou de l'exécution de la requête : " . $e->getMessage();
             return false;
         }
     }
-
-
+    
 public function supprimerVisite($id_visite) {
     try {
         $sql = "DELETE FROM visite WHERE id_visite = :id_visite";
@@ -110,27 +110,6 @@ public function supprimerVisite($id_visite) {
         return false;
     }
 }
-}
-
-
-// Reste du code inchangé...
-
-// Nouvelle fonction pour gérer la mise à jour de la date
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if ($_POST['action'] === 'updateDate') {
-        $id_visite = $_POST['id_visite'];
-        $nouvelle_date = $_POST['nouvelle_date'];
-
-        // Créez une instance de la classe Visite
-        $visite = new Visite();
-        
-        // Appelez la fonction pour mettre à jour la date
-        $resultat = $visite->updateDateVisite($id_visite, $nouvelle_date);
-
-        // Envoyez une réponse au client
-        echo $resultat ? 'Mise à jour réussie' : 'Échec de la mise à jour';
-        exit(); // Assurez-vous de terminer le script ici
-    }
 }
 
 

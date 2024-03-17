@@ -207,26 +207,7 @@ function supprimerVisite(id_visite) {
     
     
 
-    function modifierDate(idVisite) {
-        var dateVisiteElement = document.getElementById('date_visite_' + idVisite);
-        var nouvelleDate = prompt('Nouvelle date de visite :', dateVisiteElement.innerText);
-    
-        if (nouvelleDate !== null) {
-            // Envoyer la nouvelle date au serveur en utilisant AJAX
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    // La mise à jour a réussi côté serveur, mettez à jour l'élément côté client
-                    dateVisiteElement.innerText = nouvelleDate;
-                }
-            };
-    
-            // Envoyer la requête POST vers le même fichier PHP
-            xhr.open('POST', '', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.send('action=updateDate&id_visite=' + idVisite + '&nouvelle_date=' + nouvelleDate);
-        }
-    }
+
     // supprimer un proprietaire 
     // script.js
     function supprimerProprietaire() {
@@ -339,3 +320,45 @@ function supprimerLocataire() {
             '&date_nais=' + encodeURIComponent(date_nais)+
             '&tel_loc=' + encodeURIComponent(tel_loc));
 }
+function supprimerVisite(id_visite) {
+    // Envoyer la demande de suppression au serveur en utilisant AJAX
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            // La suppression a réussi côté serveur, supprimez l'élément côté client
+            var visiteElement = document.getElementById('date_visite_' + id_visite).closest('.visite');
+            visiteElement.parentNode.removeChild(visiteElement);
+        }
+    };
+
+    // Envoyer la requête POST vers le fichier PHP côté serveur (class_visite.php dans ce cas)
+    xhr.open('POST', '../controleur/controleur_visite.php?action=deleteVisit"', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send('id_visite=' + id_visite + '&action=deleteVisit');
+}
+function modifierDate(id_visite, date_visite) {
+var nouvelleDate = prompt("Entrez la nouvelle date de visite (YYYY-MM-DD) :", date_visite);
+if (nouvelleDate !== null) {
+    // Envoyer la demande de modification au serveur en utilisant AJAX
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                // La modification a réussi côté serveur
+                // Mettre à jour la date de visite affichée côté client
+                var visiteElement = document.getElementById('date_visite_' + id_visite);
+                visiteElement.textContent = " Date de visite : " + nouvelleDate;
+            } else {
+                // La modification a échoué côté serveur
+                alert("Erreur lors de la modification de la date de visite.");
+            }
+        }
+    };
+
+    // Envoyer la requête POST vers le fichier PHP côté serveur (controleur_visite.php dans ce cas)
+    xhr.open('POST', '../controleur/modif_visite.php?action=updateVisitDate', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send('id_visite=' + id_visite + '&date_visite=' + encodeURIComponent(nouvelleDate));
+}
+}
+

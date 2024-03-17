@@ -74,6 +74,23 @@ button {
 button:hover {
     background-color: #2980b9;
 }
+/* Ajoutez ces styles pour appliquer le même style à un lien que celui défini pour un bouton */
+.link-button {
+    background-color: #071982;
+    color: #fff;
+    text-decoration: none;
+    display: inline-block;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.link-button:hover {
+    background-color: #2980b9;
+}
 
 .appartement-proprio:hover {
     background-color: #f0f0f0;
