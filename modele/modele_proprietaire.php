@@ -38,9 +38,12 @@ class proprietaire {
     }
 
     public function inscription() {
+        // Hash du mot de passe
+        $hashedPassword = password_hash($this->motdepasse_pro, PASSWORD_DEFAULT);
+    
         $sql = "INSERT INTO proprietaire (nom_prop, prenom_prop, adresse_prop, cp_prop, tel_prop, login_prop, motdepasse_pro) 
                 VALUES (:nom_prop, :prenom_prop, :adresse_prop, :cp_prop, :tel_prop, :login_prop, :motdepasse_pro)";
-
+    
         try {
             $stmt = $this->maConnexion->prepare($sql);
             $stmt->bindParam(':nom_prop', $this->nom_prop);
@@ -49,7 +52,7 @@ class proprietaire {
             $stmt->bindParam(':cp_prop', $this->cp_prop);
             $stmt->bindParam(':tel_prop', $this->tel_prop);
             $stmt->bindParam(':login_prop', $this->login_prop);
-            $stmt->bindParam(':motdepasse_pro', $this->motdepasse_pro);
+            $stmt->bindParam(':motdepasse_pro', $hashedPassword); // Utilisation du mot de passe haché
             $stmt->execute();
             $lastInsertedId = $this->maConnexion->lastInsertId();
             $this->numero_prop = $lastInsertedId; // Set the property with the retrieved ID
@@ -58,6 +61,7 @@ class proprietaire {
             return false; // In case of error
         }
     }
+    
     public function loginExiste($login_prop) {
         $requete = "SELECT COUNT(*) AS count FROM proprietaire WHERE login_prop = ?";
         $statement = $this->maConnexion->prepare($requete);
@@ -65,18 +69,15 @@ class proprietaire {
         $resultat = $statement->fetch(PDO::FETCH_ASSOC);
         return $resultat['count'] > 0;
     }
-    public function connexion_prop($login_prop, $motdepasse_pro)
-    {
+    public function connexion_prop($login_prop, $motdepasse_pro) {
         try {
-            $sql = "SELECT numero_prop FROM proprietaire WHERE login_prop = :login_prop AND motdepasse_pro = :motdepasse_pro";
+            $sql = "SELECT numero_prop, motdepasse_pro FROM proprietaire WHERE login_prop = :login_prop";
             $stmt = $this->maConnexion->prepare($sql);
             $stmt->bindParam(':login_prop', $login_prop);
-            $stmt->bindParam(':motdepasse_pro', $motdepasse_pro);
-    
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
     
-            if ($result) {
+            if ($result && password_verify($motdepasse_pro, $result['motdepasse_pro'])) {
                 $this->numero_prop = $result['numero_prop']; // Mettez à jour $this->numero_prop
                 return $this->numero_prop; // Retourne l'ID (numero_prop) en cas d'authentification réussie
             } else {
@@ -86,7 +87,7 @@ class proprietaire {
             return false; // Gérez les exceptions ici
         }
     }
-
+    
     public function getProprietaireId($login, $motdepasse_pro) {
         // Appeler directement la méthode connexion_prop de l'instance courante
         return $this->connexion_prop($login, $motdepasse_pro);
@@ -209,19 +210,29 @@ public function getLoyerTotalParProprietaire($numero_prop) {
     
     try {
         $sql = "
-            SELECT p.numero_prop, p.nom_prop, p.prenom_prop, SUM(a.prix_loc + a.prix_charge) AS loyer_total
-            FROM proprietaire p
-            JOIN appartement a ON p.numero_prop = a.numero_prop
-            JOIN locataire l ON a.num_appt = l.num_appt
-            WHERE p.numero_prop = :numero_prop
-            GROUP BY p.numero_prop, p.nom_prop, p.prenom_prop;
-        ";
+        SELECT 
+            p.numero_prop, 
+            p.nom_prop, 
+            p.prenom_prop, 
+            l.nom_loc, 
+            l.prenom_loc,
+            a.num_appt,
+            SUM(a.prix_loc + a.prix_charge) AS loyer_total,  -- Assurez-vous que cette colonne est présente
+            SUM(a.prix_loc) AS prix_loyer,
+            SUM(a.prix_charge) AS prix_charges
+        FROM proprietaire p
+        JOIN appartement a ON p.numero_prop = a.numero_prop
+        JOIN locataire l ON a.num_appt = l.num_appt
+        WHERE p.numero_prop = :numero_prop
+        GROUP BY p.numero_prop, p.nom_prop, p.prenom_prop, l.nom_loc, l.prenom_loc, a.num_appt;
+    ";
+    
 
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':numero_prop', $numero_prop, PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         // Gérez les erreurs ici si nécessaire
         echo "Erreur : " . $e->getMessage();

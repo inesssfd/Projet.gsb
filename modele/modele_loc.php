@@ -73,15 +73,13 @@ class Locataire {
     public function connexion($login_loc, $motdepasse_loc)
     {
         try {
-            $sql = "SELECT * FROM locataire WHERE login_loc = :login_loc AND motdepasse_loc = :motdepasse_loc";
+            $sql = "SELECT motdepasse_loc FROM locataire WHERE login_loc = :login_loc";
             $stmt = $this->maConnexion->prepare($sql);
             $stmt->bindParam(':login_loc', $login_loc);
-            $stmt->bindParam(':motdepasse_loc', $motdepasse_loc);
-
             $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($result) {
+            $hashedPassword = $stmt->fetchColumn();
+    
+            if ($hashedPassword && password_verify($motdepasse_loc, $hashedPassword)) {
                 return true; // Authentification réussie
             } else {
                 return false; // Échec de l'authentification
@@ -90,6 +88,7 @@ class Locataire {
             return false; // Gérez les exceptions ici
         }
     }
+    
     public function getIdByLogin($login_loc) {
         try {
             $sql = "SELECT num_loc FROM locataire WHERE login_loc = :login_loc";
@@ -141,37 +140,41 @@ class Locataire {
     }
     
     public function inscription()
-{
-    try {
-        // Votre requête SQL d'insertion ici
-        $sql = "INSERT INTO locataire (nom_loc, prenom_loc, date_nais, tel_loc, num_bancaire, nom_banque, cp_banque, tel_banque, login_loc, motdepasse_loc, num_appt) 
-                VALUES (:nom_loc, :prenom_loc, :date_nais, :tel_loc, :num_bancaire, :nom_banque, :cp_banque, :tel_banque, :login_loc, :motdepasse_loc, :num_appt)";
-        
-        $stmt = $this->maConnexion->prepare($sql);
-
-        // Liens entre les paramètres et les propriétés de l'objet
-        $stmt->bindParam(':nom_loc', $this->nom_loc);
-        $stmt->bindParam(':prenom_loc', $this->prenom_loc);
-        $stmt->bindParam(':date_nais', $this->date_nais);
-        $stmt->bindParam(':tel_loc', $this->tel_loc);
-        $stmt->bindParam(':num_bancaire', $this->num_bancaire);
-        $stmt->bindParam(':nom_banque', $this->nom_banque);
-        $stmt->bindParam(':cp_banque', $this->cp_banque);
-        $stmt->bindParam(':tel_banque', $this->tel_banque);
-        $stmt->bindParam(':login_loc', $this->login_loc);
-        $stmt->bindParam(':motdepasse_loc', $this->motdepasse_loc);
-        $stmt->bindParam(':num_appt', $this->num_appt);
-
-        // Exécution de la requête
-        $stmt->execute();
-
-        // Vérifiez si l'insertion a réussi
-        return $stmt->rowCount() > 0;
-    } catch (PDOException $e) {
-        // Gérez les exceptions ici (par exemple, en les enregistrant dans un fichier de journal)
-        return false;
+    {
+        try {
+            // Hash du mot de passe
+            $hashedPassword = password_hash($this->motdepasse_loc, PASSWORD_DEFAULT);
+    
+            // Votre requête SQL d'insertion ici
+            $sql = "INSERT INTO locataire (nom_loc, prenom_loc, date_nais, tel_loc, num_bancaire, nom_banque, cp_banque, tel_banque, login_loc, motdepasse_loc, num_appt) 
+                    VALUES (:nom_loc, :prenom_loc, :date_nais, :tel_loc, :num_bancaire, :nom_banque, :cp_banque, :tel_banque, :login_loc, :motdepasse_loc, :num_appt)";
+            
+            $stmt = $this->maConnexion->prepare($sql);
+    
+            // Liens entre les paramètres et les propriétés de l'objet
+            $stmt->bindParam(':nom_loc', $this->nom_loc);
+            $stmt->bindParam(':prenom_loc', $this->prenom_loc);
+            $stmt->bindParam(':date_nais', $this->date_nais);
+            $stmt->bindParam(':tel_loc', $this->tel_loc);
+            $stmt->bindParam(':num_bancaire', $this->num_bancaire);
+            $stmt->bindParam(':nom_banque', $this->nom_banque);
+            $stmt->bindParam(':cp_banque', $this->cp_banque);
+            $stmt->bindParam(':tel_banque', $this->tel_banque);
+            $stmt->bindParam(':login_loc', $this->login_loc);
+            $stmt->bindParam(':motdepasse_loc', $hashedPassword); // Utilisation du mot de passe haché
+            $stmt->bindParam(':num_appt', $this->num_appt);
+    
+            // Exécution de la requête
+            $stmt->execute();
+    
+            // Vérifiez si l'insertion a réussi
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            // Gérez les exceptions ici (par exemple, en les enregistrant dans un fichier de journal)
+            return false;
+        }
     }
-}
+    
 public function getDetailslocataireById($num_loc) {
     try {
         $sql = "SELECT * FROM locataire WHERE num_loc = :num_loc";

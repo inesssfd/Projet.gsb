@@ -61,27 +61,27 @@ class demandeurs {
     }
 
 
- public function connexion($login, $motdepasse_demandeur)
-{
-    try {
-        $sql = "SELECT num_demandeur FROM demandeurs WHERE login = :login AND motdepasse_demandeur = :motdepasse_demandeur";
-        $stmt = $this->maConnexion->prepare($sql);
-        $stmt->bindParam(':login', $login);
-        $stmt->bindParam(':motdepasse_demandeur', $motdepasse_demandeur);
-
-        $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($result) {
-            return $result['num_demandeur']; // Retourne l'ID du demandeur
-        } else {
-            return false; // Échec de l'authentification
+    public function connexion($login, $motdepasse_demandeur) {
+        try {
+            $sql = "SELECT num_demandeur, motdepasse_demandeur FROM demandeurs WHERE login = :login";
+            $stmt = $this->maConnexion->prepare($sql);
+            $stmt->bindParam(':login', $login);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            if ($result && password_verify($motdepasse_demandeur, $result['motdepasse_demandeur'])) {
+                return $result['num_demandeur']; // Retourne l'ID du demandeur
+            } else {
+                return false; // Échec de l'authentification
+            }
+        } catch (PDOException $e) {
+            return false; // Gérez les exceptions ici
         }
-    } catch (PDOException $e) {
-        return false; // Gérez les exceptions ici
     }
-}
 public function inscription() {
+    // Hash du mot de passe
+    $hashedPassword = password_hash($this->motdepasse_demandeur, PASSWORD_DEFAULT);
+
     $sql = "INSERT INTO demandeurs (nom_demandeur, prenom_demandeur, adresse_demandeur, cp_demandeur, tel_demandeur, login, motdepasse_demandeur) 
             VALUES (:nom_demandeur, :prenom_demandeur, :adresse_demandeur, :cp_demandeur, :tel_demandeur, :login, :motdepasse_demandeur)";
 
@@ -93,7 +93,7 @@ public function inscription() {
         $stmt->bindParam(':cp_demandeur', $this->cp_demandeur);
         $stmt->bindParam(':tel_demandeur', $this->tel_demandeur);
         $stmt->bindParam(':login', $this->login);
-        $stmt->bindParam(':motdepasse_demandeur', $this->motdepasse_demandeur);
+        $stmt->bindParam(':motdepasse_demandeur', $hashedPassword); // Utilisation du mot de passe haché
         $stmt->execute();
 
         // Set the num_demandeur property after successful insertion
