@@ -23,34 +23,6 @@ include_once '../modele/modele_demande.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="../style/script.js" defer></script>
     <link rel="stylesheet" href="../style/style_appartement.css">
-    <script>
-    function modifierEtatDemande(id_demandes_location, nouvelEtat) {
-        // Vérifiez si l'ID de demande est valide
-        if (id_demandes_location !== null && id_demandes_location !== undefined) {
-            // Envoyer une requête AJAX au serveur pour modifier l'état de la demande
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "../controleur/modifier_etat_demande.php", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200) {
-                        // La requête a été traitée avec succès
-                        // Vous pouvez ajouter ici des actions supplémentaires si nécessaire
-                        console.log("L'état de la demande a été modifié avec succès.");
-                    } else {
-                        // Il y a eu une erreur lors du traitement de la requête
-                        console.error("Une erreur s'est produite lors de la modification de l'état de la demande.");
-                    }
-                }
-            };
-            // Envoyer les données de la demande à modifier
-            xhr.send("id_demande=" + id_demandes_location + "&nouvel_etat=" + nouvelEtat);
-        } else {
-            // Afficher un message d'erreur si l'ID de demande n'est pas valide
-            console.error("ID de demande invalide.");
-        }
-    }
-    </script>
 </head>
 
 <body>
@@ -100,9 +72,10 @@ include_once '../modele/modele_demande.php';
                 echo "<p>Date de la demande : " . $demande['date_demande'] . "</p>";
                 echo "<p>Statut : " . $demande['etat_demande'] . "</p>";
                 echo "<p>Num de Demandeur : " . $demande['num_demandeur'] . "</p>";
+                echo "<button onclick='afficherInfoDemandeur(" . $demande["num_demandeur"] . ")'>Afficher les données du demandeur</button>";
                 echo "<button onclick='modifierEtatDemande(" . $demande['id_demandes_location'] . ", \"Acceptée\")'>Accepter</button>";
                 echo "<button onclick='modifierEtatDemande(" . $demande['id_demandes_location'] . ", \"Refusée\")'>Refuser</button>";
-                echo "</li>";
+                echo "</li>";                
             }
             echo "</ul>";
             echo "</div>";

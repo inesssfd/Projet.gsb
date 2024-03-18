@@ -56,7 +56,6 @@ class ProprietaireController {
         if (!$this->champsCpTelValides()) {
             $this->errors[] = "Les champs code postal et téléphone ne doivent contenir que des chiffres.";
         }
-
         // Si des erreurs sont présentes, afficher les erreurs
         if (!empty($this->errors)) {
             $this->redirigerAvecErreurs();

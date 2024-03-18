@@ -94,8 +94,8 @@ if (!isset($_SESSION['numero_prop'])) {
      <label  class="formulaire"for="etage">Étage:</label>
     <input type="text" id="etage" name="etage" required>
 
-     <label  class="formulaire"for="ascenseur">Ascenseur:</label>
-    <select id="ascenseur" name="ascenseur" required>
+     <label  class="formulaire"for="ascenceur">ascenseur:</label>
+    <select id="ascenceur" name="ascenceur" required>
         <option value="1">Oui</option>
         <option value="0">Non</option>
     </select>

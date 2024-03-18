@@ -255,7 +255,7 @@ function supprimerLocataire() {
     var xhr = new XMLHttpRequest();
     
     // Configurez la requête
-    xhr.open('POST', '../controleur/c_supp_loc.php', true);
+    xhr.open('POST', '../controleur/controleur_locc.php', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     
     // Définissez la fonction de rappel
@@ -267,7 +267,7 @@ function supprimerLocataire() {
                 if (response === 'success') {
                     // Suppression réussie côté serveur
                     console.log('locc supprimé avec succès.');
-                    window.location.href = 'index.php';
+                    window.location.href = '../index.php';
                 } else {
                     // Gérez d'autres réponses ou erreurs
                     alert('Erreur: ' + response);
@@ -362,3 +362,47 @@ if (nouvelleDate !== null) {
 }
 }
 
+
+function modifierEtatDemande(id_demandes_location, nouvelEtat) {
+    // Vérifiez si l'ID de demande est valide
+    if (id_demandes_location !== null && id_demandes_location !== undefined) {
+        // Envoyer une requête AJAX au serveur pour modifier l'état de la demande
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "../controleur/modifier_etat_demande.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    // La requête a été traitée avec succès
+                    // Vous pouvez ajouter ici des actions supplémentaires si nécessaire
+                    console.log("L'état de la demande a été modifié avec succès.");
+                } else {
+                    // Il y a eu une erreur lors du traitement de la requête
+                    console.error("Une erreur s'est produite lors de la modification de l'état de la demande.");
+                }
+            }
+        };
+        // Envoyer les données de la demande à modifier
+        xhr.send("id_demande=" + id_demandes_location + "&nouvel_etat=" + nouvelEtat);
+    } else {
+        // Afficher un message d'erreur si l'ID de demande n'est pas valide
+        console.error("ID de demande invalide.");
+    }
+}
+
+function afficherInfoDemandeur(numDemandeur) {
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "../controleur/controleur_demandeurs.php?action=afficher_infos_demandeur&num_demandeur=" + numDemandeur, true);
+xhr.onreadystatechange = function() {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+            // Traitement réussi, affichez les informations du demandeur
+            alert(xhr.responseText); // Vous pouvez remplacer cette alerte par l'affichage des données dans une boîte de dialogue ou une autre section de la page
+        } else {
+            // Erreur lors du traitement de la requête
+            console.error("Erreur lors de la récupération des informations du demandeur.");
+        }
+    }
+};
+xhr.send();
+}

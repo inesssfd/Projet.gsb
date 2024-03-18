@@ -6,6 +6,8 @@ include_once '..\modele\modele_visite.php';
 
 class VisiteController {
     private $visite;
+    private $errors = []; // Variable pour stocker les erreurs
+
 
     public function __construct($donneesVisite = null) {
         if ($donneesVisite !== null) {
@@ -21,18 +23,43 @@ class VisiteController {
 
     public function traiterVisite() {
         try {
+            // Vérifier si la date de visite est ultérieure à la date actuelle
+            $date_visite = $this->visite->getDateVisite();
+            $date_actuelle = date('Y-m-d');
+            
+            if ($date_visite < $date_actuelle) {
+                // Si la date de visite est antérieure à la date actuelle, afficher une erreur
+                $this->redirigerAvecErreurDateVisite("La date de visite doit être ultérieure à la date actuelle.");
+                return;
+            }
+            
+            
+            // Si la date de visite est valide, procéder au traitement de la visite
             if ($this->visite->visiter()) {
+                // Rediriger vers une autre page si le traitement réussit
                 header('Location:../vue/appartement_loué.php');
                 exit;
             } else {
-                echo "Erreur lors de l'ajout de la visite.";
+                // Si le traitement échoue, afficher l'erreur sur la même page
+                $this->errors[] = "Erreur lors de l'ajout de la visite.";
+                $this->afficherErreurs(); // Appel à la méthode pour afficher les erreurs
             }
         } catch (PDOException $e) {
-            echo "Erreur PDO : " . $e->getMessage();
+            // Gestion des erreurs PDO
+            $this->errors[] = "Erreur PDO : " . $e->getMessage();
+            $this->afficherErreurs(); // Appel à la méthode pour afficher les erreurs
         } catch (Exception $e) {
-            echo "Erreur PHP : " . $e->getMessage();
+            // Gestion des autres erreurs PHP
+            $this->errors[] = "Erreur PHP : " . $e->getMessage();
+            $this->afficherErreurs(); // Appel à la méthode pour afficher les erreurs
         }
     }
+    private function redirigerAvecErreurDateVisite($errorMessage) {
+        $errorString = "date_visite_error=" . urlencode($errorMessage);
+        header("Location: ../vue/v_acceuil_demandeur.php?" . $errorString);
+        exit();
+    }
+    
 public function modifierDateVisite($id_visite, $nouvelle_date) {
     try {
         // Créez une instance de la classe Visite

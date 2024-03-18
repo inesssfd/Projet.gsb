@@ -18,29 +18,33 @@ class DemandeurController {
             elseif (isset($_POST['action']) && $_POST['action'] === 'connexion') {
                 $this->connexion();
             }
-            // Si le formulaire de modification est soumis
-            elseif (isset($_POST['action']) && $_POST['action'] === 'modifierDemandeur') {
-                $this->modifierDemandeur();
+        }
+        // Si une action est spécifiée dans l'URL
+        elseif (isset($_GET['action'])) {
+            $action = $_GET['action'];
+            // Vérifier si l'action est pour afficher les informations du demandeur
+            if ($action === 'afficher_infos_demandeur' && isset($_GET['num_demandeur'])) {
+                $this->afficherInfosDemandeur($_GET['num_demandeur']);
             }
         }
     }
 
-public function modifierDemandeur() {
-    // Vérification de l'action dans les paramètres GET
-    if (isset($_GET['action']) && $_GET['action'] == 'modifierDemandeur') {
-        // Récupérer le numéro du demandeur connecté depuis la session
-        $num_demandeur_connecte = isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : null;
+  public function afficherInfosDemandeur($numDemandeur) {
+        // Récupérer les informations du demandeur
+        $demandeur = new Demandeurs();
+        $infosDemandeur = $demandeur->getDemandeurById($numDemandeur);
 
-        $nouveauNom = isset($_POST['nouveauNom']) ? $_POST['nouveauNom'] : null;
-        $nouveauPrenom = isset($_POST['nouveauPrenom']) ? $_POST['nouveauPrenom'] : null;
-        $nouvelleAdresse = isset($_POST['nouvelleAdresse']) ? $_POST['nouvelleAdresse'] : null;
-        $nouveauCodePostal = isset($_POST['nouveauCodePostal']) ? $_POST['nouveauCodePostal'] : null;
-        $nouveauTelephone = isset($_POST['nouveauTelephone']) ? $_POST['nouveauTelephone'] : null;
+        // Formattez les informations du demandeur pour l'affichage
+        $infosFormatees = "Nom : " . $infosDemandeur['nom_demandeur'] . "\n";
+        $infosFormatees .= "Prénom : " . $infosDemandeur['prenom_demandeur'] . "\n";
+        $infosFormatees .= "Adresse : " . $infosDemandeur['adresse_demandeur'] . "\n";
+        $infosFormatees .= "Code postal : " . $infosDemandeur['cp_demandeur'] . "\n";
+        $infosFormatees .= "Téléphone : " . $infosDemandeur['tel_demandeur'] . "\n";
+        $infosFormatees .= "Login : " . $infosDemandeur['login'] . "\n";
 
-        // Appel de la méthode de modification avec le numéro du demandeur connecté
-        $this->demandeur->modifierDemandeur($nouveauNom, $nouveauPrenom, $nouvelleAdresse, $nouveauCodePostal, $nouveauTelephone, $num_demandeur_connecte);
+        // Afficher les informations du demandeur
+        echo $infosFormatees;
     }
-}
 
     private function inscription() {
         if ($this->demandeurs->loginExiste($_POST['login'])) {

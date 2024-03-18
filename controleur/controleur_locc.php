@@ -20,32 +20,41 @@ class InscriptionLocataireController {
 
     public function traiterInscription() {
         if (!$this->champsCpTelValides()) {
-            // Gérer l'erreur pour les champs CP et Téléphones
-            $this->errors[] = "Les champs des telephones, code postal et des numeros  ne doivent contenir que des chiffres.";
+            $this->errors[] = "Les champs des téléphones, code postal et des numéros ne doivent contenir que des chiffres.";
+            $this->redirigerAvecErreurs($this->errors);
+            return;
+        }
+        $date_nais = $_POST['date_nais'];
+        if (!$this->ageMinimumValide($date_nais)) {
             $this->redirigerAvecErreurs($this->errors);
             return;
         }
         if (!$this->champsNomPrenomValides()) {
-            // Gérer l'erreur pour les champs Nom et Prénom
             $this->errors[] = "Les champs nom et prénom ne doivent contenir que des lettres et des espaces.";
             $this->redirigerAvecErreurs($this->errors);
             return;
         } else {
-            // Supprimer le demandeur connecté après la redirection
-            if (!empty($_SESSION['num_demandeur'])) {
-                $demandeur = new demandeurs();
-                $suppressionDemandeur = $demandeur->supprimerDemandeur($_SESSION['num_demandeur']);
-                
-                // Vérifier si la suppression du demandeur a réussi
-                if (!$suppressionDemandeur) {
-                    $this->confirmation = "Erreur lors de la suppression du demandeur.";
-                } else {
-                    // La suppression a réussi, vous pouvez ajouter un message de confirmation si nécessaire
-                    $this->confirmation = "Inscription du locataire réussie et suppression du demandeur effectuée.";
+            // Inscription du locataire
+            $inscription_reussie = $this->locataire->inscription();
+    
+            if ($inscription_reussie) {
+                // Suppression du demandeur connecté
+                if (!empty($_SESSION['num_demandeur'])) {
+                    $demandeur = new demandeurs();
+                    $suppressionDemandeur = $demandeur->supprimerDemandeur($_SESSION['num_demandeur']);
+    
+                    // Vérifier si la suppression du demandeur a réussi
+                    if (!$suppressionDemandeur) {
+                        $this->confirmation = "Erreur lors de la suppression du demandeur.";
+                    } else {
+                        // La suppression a réussi
+                        $this->confirmation = "Inscription du locataire réussie et suppression du demandeur effectuée.";
+                    }
                 }
+            } else {
+                $this->confirmation = "Erreur lors de l'inscription du locataire.";
             }
     
-            // Vous pouvez commenter ou supprimer la ligne suivante si vous ne souhaitez pas rediriger
             $this->redirigerVersAccueilLoc();
         }
     }
@@ -61,10 +70,23 @@ class InscriptionLocataireController {
     }
 
     private function champsCpTelValides() {
-        return preg_match("/^\d+$/", $_POST['tel_loc']) && preg_match("/^\d+$/", $_POST['num_bancaire'])&& preg_match("/^\d+$/", $_POST['cp_banque'])&& preg_match("/^\d+$/", $_POST['tel_banque']);
+        return preg_match("/^\d+$/", $_POST['tel_loc'])&& preg_match("/^\d+$/", $_POST['cp_banque'])&& preg_match("/^\d+$/", $_POST['tel_banque']);
     }
     private function champsNomPrenomValides() {
         return preg_match("/^[a-zA-ZÀ-ÿ\s]+$/", $_POST['nom_loc']) && preg_match("/^[a-zA-ZÀ-ÿ\s]+$/", $_POST['prenom_loc']);
+    }
+    public function ageMinimumValide($date_nais, $age_minimum = 18) {
+        $date_actuelle = new DateTime();
+        $date_naissance = new DateTime($date_nais);
+        $difference = $date_naissance->diff($date_actuelle);
+        $age = $difference->y; // Récupérer l'âge en années
+    
+        if ($age < $age_minimum) {
+            // Gérer l'erreur pour l'âge insuffisant
+            $this->errors[] = "Vous devez avoir au moins $age_minimum ans pour vous inscrire comme locataire.";
+            return false;
+        }
+        return true;
     }
 
     private function redirigerAvecErreurs() {
@@ -103,6 +125,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $controller->traiterInscription();
         $confirmation = $controller->getConfirmation();
     }
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['action']) && $_POST['action'] === 'supprimerLocataire') {
+        // Assurez-vous que l'utilisateur est connecté
+        if (isset($_SESSION['user_id'])) {
+            $num_loc = $_SESSION['user_id'];
+
+            // Créez une instance de la classe Locataire
+            $locataire = new Locataire();
+
+            // Utilisez la méthode supprimerLocataire pour supprimer le locataire
+            $success = $locataire->supprimerLocataire($num_loc);
+
+            if ($success) {
+                // Déconnectez le locataire après la suppression
+                session_destroy();
+                echo 'success'; // Envoyez une réponse au client
+            } else {
+                echo 'Erreur lors de la suppression du locataire.';
+            }
+        } else {
+            echo 'L\'utilisateur n\'est pas connecté.';
+        }
+    } else {
+        echo 'Action non autorisée.';
+    }
+} else {
+    echo 'Méthode non autorisée.';
 }
 
 // Utilisez $confirmation dans votre vue pour informer l'utilisateur.

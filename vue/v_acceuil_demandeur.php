@@ -3,7 +3,11 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
+if (!isset($_SESSION['num_demandeur'])) {
+    // Redirection vers la page de connexion
+    header("Location: ../index.php");
+    exit;
+}
 include_once '../modele/modele_app.php';
 
 // Récupérer la liste des appartements
@@ -103,6 +107,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'rechercherAppartements') {
 </nav>
 
 <div>
+<?php
+// Vérifiez s'il y a un message d'erreur spécifique à la date de visite dans l'URL
+$date_visite_error = isset($_GET['date_visite_error']) ? $_GET['date_visite_error'] : null;
+
+// Affichez le message d'erreur s'il existe
+if (!empty($date_visite_error)) {
+    echo '<div style="color: red;">' . htmlspecialchars($date_visite_error) . '</div>';
+}
+?>
     <?php
     echo '<div class="appartements-container">';
     echo "<h2>Liste des Appartements</h2>";

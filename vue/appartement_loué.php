@@ -71,8 +71,13 @@ foreach ($visites_prevues as $visite_prevue) {
             // Si une demande existe et n'est pas refusée, afficher l'état de la demande et sa date
             echo "<p>Statut de la demande : " . $demande['etat_demande'] . "</p>";
             echo "<p>Date de la demande : " . $demande['date_demande'] . "</p>";
-            echo "<a class=\"link-button\" href=\"formulaire_location.php?num_appt=" . $visite_prevue['num_appt'] . "&num_demandeur=" . $num_demandeur_connecte . "\">Devenir locataire</a>";
-
+            if ($demande['etat_demande'] === 'En attente') {
+                // Si l'état de la demande est "En attente", n'afficher pas le bouton "Devenir locataire"
+                echo "<p>Vous avez une demande en attente pour cet appartement.</p>";
+            } else {
+                // Sinon, afficher l'état de la demande et sa date ainsi que le bouton "Devenir locataire"
+                echo "<a class=\"link-button\" href=\"formulaire_location.php?num_appt=" . $visite_prevue['num_appt'] . "&num_demandeur=" . $num_demandeur_connecte . "\">Devenir locataire</a>";
+            }
         } else {
             // Si la demande est refusée, afficher un message indiquant que la demande est refusée
             echo "<p>Statut de la demande : Refusée</p>";
@@ -83,19 +88,13 @@ foreach ($visites_prevues as $visite_prevue) {
         echo "<button onclick=\"supprimerVisite(" . $visite_prevue['id_visite'] . ")\">Supprimer visite</button>";
         echo "<button onclick=\"modifierDate(" . $visite_prevue['id_visite'] . ", '" . $visite_prevue['date_visite'] . "')\">Modifier visite</button>";
         echo "<a class=\"link-button\" href=\"formulaire_demande.php?num_appt=" . $visite_prevue['num_appt'] . "&num_demandeur=" . $num_demandeur_connecte . "\">Faire une demande de location</a>";
-
     }
     
     echo "</div>";
     $count++;
 }
+?>
 
-
-
-    
-    
-    ?>
-    
     
 </div>
 </body>

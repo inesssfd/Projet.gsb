@@ -23,6 +23,10 @@ class Visite {
     public function getNum_appt() {
         return $this->num_appt;
     }
+    
+    public function getDateVisite() {
+        return $this->date_visite;
+    }
 
  public function getVisitesByDemandeur($num_demandeur) {
         try {

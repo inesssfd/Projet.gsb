@@ -1,22 +1,6 @@
 <?php
 include_once '..\controleur\param_connexion.php';
-if (isset($_GET['action'])) {
-    $action = $_GET['action'];
 
-    if ($action == 'supprimerAppartement' && isset($_GET['num_appt'])) {
-        $num_appt = $_GET['num_appt'];
-        // Appeler la fonction supprimerAppartement avec $num_appt
-        Appartement::supprimerAppartement($num_appt);
-    } elseif ($action == 'mettreAJourAppartement' && isset($_POST['num_appt'])) {
-        $num_appt = $_POST['num_appt'];
-        $champ = $_POST['champ'];  // Ajoutez la récupération du champ depuis le formulaire
-        $nouvelleValeur = $_POST['nouvelleValeur'];
-        
-        // Appeler la fonction pour mettre à jour l'appartement
-        Appartement::modifierAppartement($num_appt, $champ, $nouvelleValeur);
-    }
-    
-}
 class Appartement {
     private $num_appt;
     private $type_appt;

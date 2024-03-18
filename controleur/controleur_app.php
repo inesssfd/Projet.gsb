@@ -13,20 +13,37 @@ class AppartementController {
 
     public function __construct() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Vérifier si le formulaire d'ajout ou de modification est soumis
+            // Vérifier si le formulaire d'ajout, de modification ou de suppression est soumis
             if (isset($_POST['action'])) {
                 if ($_POST['action'] === 'ajouterAppartement') {
                     $this->ajouterAppartement();
                 } elseif ($_POST['action'] === 'modifierAppartement') {
                     $this->modifierAppartement();
+                } elseif ($_POST['action'] === 'supprimerAppartement') {
+                    $this->supprimerAppartement(); // Correction ici
                 }
             }
-            if (isset($_GET['action']) && $_GET['action'] === 'rechercherAppartements') {
-                $this->rechercherAppartements();
-            }
+        }
+        if (isset($_GET['action']) && $_GET['action'] === 'rechercherAppartements') {
+            $this->rechercherAppartements();
         }
     }
     
+    private function supprimerAppartement($num_appt) {
+        try {
+            // Appeler la méthode statique de la classe Appartement pour supprimer l'appartement
+            if (Appartement::supprimerAppartement($num_appt)) {
+                // Suppression réussie
+                $this->confirmation = "L'appartement a été supprimé avec succès.";
+            } else {
+                // Erreur lors de la suppression
+                $this->confirmation = "Erreur lors de la suppression de l'appartement.";
+            }
+        } catch (PDOException $e) {
+            // Gérer les exceptions PDO ici
+            $this->confirmation = "Erreur lors de la suppression de l'appartement : " . $e->getMessage();
+        }
+    }
     public function getConfirmation() {
         return $this->confirmation;
     }
