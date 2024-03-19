@@ -47,10 +47,10 @@ class AppartementController {
     public function getConfirmation() {
         return $this->confirmation;
     }
-    public static function getAppartementsSansLocataire() {
+    public static function getAppartementsSansLocataireEtDateLibrePasse() {
         try {
             // Appeler la méthode statique de la classe Appartement pour récupérer les appartements sans locataire
-            return Appartement::getAppartementsSansLocataire();
+            return Appartement::getAppartementsSansLocataireEtDateLibrePasse();
         } catch (PDOException $e) {
             // Gérer les exceptions PDO ici (par exemple, en les enregistrant dans un fichier journal)
             return false;

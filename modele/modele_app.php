@@ -262,13 +262,13 @@ class Appartement {
         }
     }
     
-    public static function getAppartementsSansLocataire() {
+    public static function getAppartementsSansLocataireEtDateLibrePasse() {
         try {
             $connexionDB = new ConnexionDB();
             $maConnexion = $connexionDB->get_connexion();
             
-            // Sélectionnez les appartements sans locataire
-            $sql = "SELECT * FROM appartement WHERE num_appt NOT IN (SELECT num_appt FROM locataire)";
+            // Sélectionnez les appartements sans locataire et avec une date libre déjà passée
+            $sql = "SELECT * FROM appartement WHERE num_appt NOT IN (SELECT num_appt FROM locataire) AND date_libre < CURDATE()";
             $stmt = $maConnexion->prepare($sql);
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);

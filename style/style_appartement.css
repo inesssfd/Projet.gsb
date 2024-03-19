@@ -1,23 +1,3 @@
-@media only screen and (max-width: 600px) {
-    .appartement-proprio {
-        width: 100%; /* Pour que les cartes d'appartement prennent toute la largeur de l'écran */
-    }
-    .row {
-        flex-direction: column; /* Pour afficher les appartements en une seule colonne */
-    }
-    
-    .appartements-container {
-        width: 100%; /* Pour que les cartes d'appartement prennent toute la largeur de l'écran */
-    }
-    
-    .custom-pro {
-        width: 100%; /* Pour que les cartes d'appartement prennent toute la largeur de l'écran */
-    }
-    
-    .button-container {
-        width: 100%; /* Pour que les cartes d'appartement prennent toute la largeur de l'écran */
-    }
-}
 
 .appartements-container {
     margin: 20px;
@@ -50,8 +30,8 @@ h2 {
     padding: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
-    margin-bottom: 90px; /* Increase the margin-bottom to increase the distance */
-    margin: 0 auto; /* Center the apartment cards horizontally */
+    margin-bottom: 20px;
+    margin-right: 10px; /* Add some margin between apartment cards */
 }
 
 .appartement-proprio strong {
@@ -59,7 +39,6 @@ h2 {
     font-size: 18px;
     font-weight: bold;
 }
-
 
 button {
     background-color: #071982;
@@ -73,23 +52,6 @@ button {
 }
 
 button:hover {
-    background-color: #2980b9;
-}
-/* Ajoutez ces styles pour appliquer le même style à un lien que celui défini pour un bouton */
-.link-button {
-    background-color: #071982;
-    color: #fff;
-    text-decoration: none;
-    display: inline-block;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-right: 10px;
-    transition: background-color 0.3s ease;
-}
-
-.link-button:hover {
     background-color: #2980b9;
 }
 
@@ -577,3 +539,5 @@ button:hover {
 .visite:hover {
     max-height: 200px; /* Set the max height to a larger value on hover */
 }
+
+
