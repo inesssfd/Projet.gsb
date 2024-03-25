@@ -17,7 +17,7 @@ class Appartement {
 
     private $maConnexion;
     // Constructor
-    public function __construct($num_appt,$type_appt, $prix_loc, $prix_charge, $rue, $arrondisement, $etage, $ascenceur, $preavis, $date_libre, $numero_prop) {
+    public function __construct($num_appt='?',$type_appt='?', $prix_loc='?', $prix_charge='?', $rue='?', $arrondisement='?', $etage='?', $ascenceur='?', $preavis='?', $date_libre='?', $numero_prop='?') {
         $this->num_appt = $num_appt;
         $this->type_appt = $type_appt;
         $this->prix_loc = $prix_loc;
@@ -268,7 +268,7 @@ class Appartement {
             $maConnexion = $connexionDB->get_connexion();
             
             // Sélectionnez les appartements sans locataire et avec une date libre déjà passée
-            $sql = "SELECT * FROM appartement WHERE num_appt NOT IN (SELECT num_appt FROM locataire) AND date_libre < CURDATE()";
+            $sql = "SELECT * FROM appartement WHERE num_appt NOT IN (SELECT num_appt FROM locataire) AND date_libre <= CURDATE()";
             $stmt = $maConnexion->prepare($sql);
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -339,7 +339,24 @@ class Appartement {
             return false;
         }
     }
- 
+    public function getAllAppartement() {
+        try {
+            $connexionDB = new ConnexionDB();
+            $maConnexion = $connexionDB->get_connexion();
+            
+            // Requête SQL pour récupérer tous les propriétaires
+            $sql = "SELECT * FROM appartement";
+            $stmt = $maConnexion->prepare($sql);
+            $stmt->execute();
+            $appartement = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Retournez les propriétaires récupérés
+            return $appartement;
+        } catch (PDOException $e) {
+            // Gérez les exceptions ici
+            return false;
+        }
+    }
     }
     
     

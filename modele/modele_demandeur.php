@@ -165,6 +165,8 @@ public function supprimerDemandeur($num_demandeur) {
     
             $stmt->execute();
     
+            error_log('Modification réussie du demandeur.');
+
             // Modification réussie, renvoie une réponse JSON
             $response = array('status' => 'success');
             echo json_encode($response);
@@ -174,7 +176,7 @@ public function supprimerDemandeur($num_demandeur) {
             error_log('Erreur de modification du demandeur : ' . $e->getMessage());
     
             // En cas d'erreur, renvoie une réponse JSON avec un message
-            $response = array('status' => 'error', 'message' => 'Erreur de modification du demand : ' . $e->getMessage());
+            $response = array('status' => 'error', 'message' => 'Erreur de modification du demandeur : ' . $e->getMessage());
             echo json_encode($response);
             return false; // En cas d'erreur
         }
@@ -189,7 +191,24 @@ public function supprimerDemandeur($num_demandeur) {
     
     
     
-
+    public function getAllDemandeurs() {
+        try {
+            $connexionDB = new ConnexionDB();
+            $maConnexion = $connexionDB->get_connexion();
+            
+            // Requête SQL pour récupérer tous les demandeurs
+            $sql = "SELECT * FROM demandeurs";
+            $stmt = $maConnexion->prepare($sql);
+            $stmt->execute();
+            $demandeurs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Retournez les demandeurs récupérés
+            return $demandeurs;
+        } catch (PDOException $e) {
+            // Gérez les exceptions ici
+            return false;
+        }
+    }
 }    
 
 

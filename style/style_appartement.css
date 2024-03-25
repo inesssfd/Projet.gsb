@@ -30,8 +30,7 @@ h2 {
     padding: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
-    margin-bottom: 20px;
-    margin-right: 10px; /* Add some margin between apartment cards */
+    margin: 0 auto 20px; /* Center the div horizontally and add margin at the bottom */
 }
 
 .appartement-proprio strong {
@@ -39,6 +38,7 @@ h2 {
     font-size: 18px;
     font-weight: bold;
 }
+
 
 button {
     background-color: #071982;
@@ -481,6 +481,14 @@ h2 {
     margin-top: 20px;
 }
 
+.button-container button {
+    margin-right: 10px; 
+}
+
+.button-container button:last-child {
+    margin-right: 0;
+}
+
 button {
     background-color: #071982;
     color: #fff;
@@ -519,6 +527,25 @@ button:hover {
     color: #071982;
     background-color: #80ffd3;
 }
+.link-button {
+    background-color: #071982;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.link-button:hover {
+    background-color: #0a113a;
+    transform: scale(1.1);
+}
+
 
 /* Dynamic styles for apartment divs */
 .visite {
@@ -531,13 +558,21 @@ button:hover {
     transition: max-height 0.3s ease-in-out; /* Ajoute une transition */
 }
 
+/* Ajoutez cette règle pour ajuster la taille de la div visite en fonction de la taille des boutons */
+.visite {
+    margin-bottom: 50px; /* Ajustez la valeur de la marge inférieure en fonction de la taille des boutons */
+}
+
 .visite p {
     margin: 8px 0;
 }
+.visite button {
+    margin-right: 10px;
+}
 
-/* Show full content on hover */
-.visite:hover {
-    max-height: 200px; /* Set the max height to a larger value on hover */
+.visite .link-button {
+    margin-right: 10px;
+    display: inline-block; /* Assurez-vous que le lien se comporte comme un bloc en ligne */
 }
 
 

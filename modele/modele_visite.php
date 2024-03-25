@@ -114,7 +114,26 @@ public function supprimerVisite($id_visite) {
         return false;
     }
 }
+    public function getAllVisite() {
+        try {
+            $connexionDB = new ConnexionDB();
+            $maConnexion = $connexionDB->get_connexion();
+            
+            // Requête SQL pour récupérer tous les propriétaires
+            $sql = "SELECT * FROM visite";
+            $stmt = $maConnexion->prepare($sql);
+            $stmt->execute();
+            $visite = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Retournez les propriétaires récupérés
+            return $visite;
+        } catch (PDOException $e) {
+            // Gérez les exceptions ici
+            return false;
+        }
+    }
 }
+
 
 
 

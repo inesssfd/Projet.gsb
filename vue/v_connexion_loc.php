@@ -10,8 +10,8 @@
 <body>
 <div class="container">
         <div class="form-container">
-<form method='POST' action='../controleur/controleur_connexion_loc.php' name='annuaire' enctype='application/x-www-form-urlencoded'>
-<input type="hidden" name="action" value="connexion">
+        <form method='POST' action='../controleur/controleur_locc.php' name='annuaire' enctype='application/x-www-form-urlencoded'>
+        <input type="hidden" name="action" value="connexion_locataire"> <!-- Modifier la valeur de l'action -->
     <h1>Connexion</h1>
     <div class="input-wrapper">
     <label for="login_loc">login: </label>

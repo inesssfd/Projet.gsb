@@ -60,7 +60,7 @@ $visites_prevues = (new Visite())->getVisitesByDemandeur($num_demandeur_connecte
 $count = 1; // Counter to add classes dynamically
 foreach ($visites_prevues as $visite_prevue) {
     $apartmentClass = 'apartment' . $count; // Dynamic class name
-    echo "<div class='visite $apartmentClass'>";
+    echo "<div id='visite_" . $visite_prevue['id_visite'] . "' class='visite $apartmentClass'>";
     echo "<p> Date de visite : " . $visite_prevue['date_visite'] . " Appartement : " . $visite_prevue['num_appt'] . "</p>";
    
     // Vérifier si la visite est une demande de location
@@ -85,7 +85,7 @@ foreach ($visites_prevues as $visite_prevue) {
         }
     } else {
         // Si aucune demande n'existe, afficher les boutons "Modifier visite" et "Supprimer visite"
-        echo "<button onclick=\"supprimerVisite(" . $visite_prevue['id_visite'] . ")\">Supprimer visite</button>";
+        echo "<button onclick=\"supprimerVisite(" . $visite_prevue['id_visite'] . ")\">Supprimer</button>";
         echo "<button onclick=\"modifierDate(" . $visite_prevue['id_visite'] . ", '" . $visite_prevue['date_visite'] . "')\">Modifier visite</button>";
         echo "<a class=\"link-button\" href=\"formulaire_demande.php?num_appt=" . $visite_prevue['num_appt'] . "&num_demandeur=" . $num_demandeur_connecte . "\">Faire une demande de location</a>";
     }

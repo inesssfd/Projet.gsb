@@ -32,6 +32,7 @@
                 différentes fonctionnalités de notre plateforme.</p>
         </section>
     </main>
+    <a href='vue/connexion_admin.php' >Vous êtes admin</a>
 </body>
 
 </html>

@@ -225,6 +225,24 @@ public function supprimerLocataire($num_loc) {
         return false;
     }
 }
+public function getAllLocataire() {
+    try {
+        $connexionDB = new ConnexionDB();
+        $maConnexion = $connexionDB->get_connexion();
+        
+        // Requête SQL pour récupérer tous les demandeurs
+        $sql = "SELECT * FROM locataire";
+        $stmt = $maConnexion->prepare($sql);
+        $stmt->execute();
+        $locataire = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Retournez les demandeurs récupérés
+        return $locataire;
+    } catch (PDOException $e) {
+        // Gérez les exceptions ici
+        return false;
+    }
+}
 
 
 

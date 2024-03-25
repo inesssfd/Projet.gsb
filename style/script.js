@@ -1,34 +1,27 @@
 function supprimerAppartement(num_appt) {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cet appartement?")) {
+    if(confirm("Êtes-vous sûr de vouloir supprimer cet appartement ?")) {
+        // Création d'une requête AJAX
         var xhr = new XMLHttpRequest();
-        var appartementElement = document.getElementById('type_appt_' + num_appt);
-
-        console.log("Tentative de suppression de l'élément avec l'ID : " + 'type_appt_' + num_appt);
-
-        if (appartementElement) {
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4) {
-                    if (xhr.status == 200) {
-                        console.log("Réponse du serveur : " + xhr.responseText);
-                        if (xhr.responseText === 'success') {
-                            alert("Appartement supprimé avec succès!");
-                            appartementElement.parentNode.removeChild(appartementElement);
-                        } else {
-                            console.error("Erreur de suppression côté serveur. Réponse du serveur : " + xhr.responseText);
-                        }
-                    } else {
-                        console.error("Erreur de suppression côté serveur. Statut HTTP : " + xhr.status);
-                    }
+        xhr.open('POST', '../controleur/supprimer_appartement.php', true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        // Envoi des données au serveur
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+                if(xhr.responseText == "success") {
+                    // Rafraîchissement de la page si la suppression est réussie
+                    window.location.reload();
+                } else {
+                    alert("Erreur lors de la suppression de l'appartement.");
                 }
-            };
-
-            xhr.open('GET', '../modele/modele_app.php?action=supprimerAppartement&num_appt=' + num_appt, true);
-            xhr.send();
-        } else {
-            console.error("L'élément n'existe pas dans le DOM.");
-        }
+            }
+        };
+        // Envoi des données POST avec le numéro de l'appartement à supprimer
+        xhr.send('num_appt=' + num_appt);
     }
 }
+
+
+
 function modifierAppartement(num_appt, num_prop) {
     console.log("Fonction appelée avec le numéro d'appartement : " + num_appt);
     console.log("Fonction appelée avec le numéro prop : " + num_prop);
@@ -74,22 +67,6 @@ function modifierAppartement(num_appt, num_prop) {
     function louerLocataire(numAppt) {
     window.location.href = "formulaire_location.php?num_appt=" + numAppt;
 }
-function supprimerVisite(id_visite) {
-        // Envoyer la demande de suppression au serveur en utilisant AJAX
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                // La suppression a réussi côté serveur, supprimez l'élément côté client
-                var visiteElement = document.getElementById('date_visite_' + id_visite).closest('.visite');
-                visiteElement.parentNode.removeChild(visiteElement);
-            }
-        };
-
-        // Envoyer la requête POST vers le fichier PHP côté serveur (class_visite.php dans ce cas)
-        xhr.open('POST', '../controleur/controleur_visite.php?action=deleteVisit"', true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.send('id_visite=' + id_visite + '&action=deleteVisit');
-    }
         function showVisitForm(num_appt, num_demandeur) {
         var formHTML = `
         <h2>Formulaire de Visite</h2>
@@ -190,7 +167,7 @@ function supprimerVisite(id_visite) {
             }).join('&');
     
             // Ouverture de la requête AJAX (assurez-vous d'ajuster l'URL du script serveur)
-            xhr.open("POST", "../controleur/controleur_modif_demandeur.php?action=modifierDemandeur", true);
+            xhr.open("POST", "../controleur/controleur_demandeurs.php?action=modifierDemandeur", true);
     
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     
@@ -245,7 +222,17 @@ function supprimerVisite(id_visite) {
         // Envoyez la requête avec les données POST
         xhr.send('action=supprimerProprietaireConnecte');
     }
+    function supprimerProprietaireAdmin(numero_prop) {
+        // Demander confirmation avant de supprimer le propriétaire
+        if (confirm("Êtes-vous sûr de vouloir supprimer ce propriétaire ?")) {
+            // Rediriger vers la page de suppression du propriétaire avec le numéro du propriétaire
+            window.location.href = "../controleur/controleur_admin.php?action=supprimer_proprietaire&num_proprietaire=" + numero_prop;
+        }
+    }
+    
 
+    
+    
 //modifier locattaire
    
 function supprimerLocataire() {
@@ -326,7 +313,7 @@ function supprimerVisite(id_visite) {
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             // La suppression a réussi côté serveur, supprimez l'élément côté client
-            var visiteElement = document.getElementById('date_visite_' + id_visite).closest('.visite');
+            var visiteElement = document.getElementById('visite_' + id_visite);
             visiteElement.parentNode.removeChild(visiteElement);
         }
     };
@@ -336,6 +323,8 @@ function supprimerVisite(id_visite) {
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.send('id_visite=' + id_visite + '&action=deleteVisit');
 }
+
+
 function modifierDate(id_visite, date_visite) {
 var nouvelleDate = prompt("Entrez la nouvelle date de visite (YYYY-MM-DD) :", date_visite);
 if (nouvelleDate !== null) {
@@ -406,3 +395,116 @@ xhr.onreadystatechange = function() {
 };
 xhr.send();
 }
+
+
+function modifierDemandeurAdmin(index) {
+    console.log("fonction appelée");
+
+    // Utilisation de innerHTML pour récupérer les nouvelles valeurs éditées
+    var nouveauNom = document.getElementById('nom_demandeur' + index).innerHTML;
+    var nouveauPrenom = document.getElementById('prenom_demandeur' + index).innerHTML;
+    var nouvelleAdresse = document.getElementById('adresse_demandeur' + index).innerHTML;
+    var nouveauCodePostal = document.getElementById('cp_demandeur' + index).innerHTML;
+    var nouveauTelephone = document.getElementById('tel_demandeur' + index).innerHTML;
+    var nouveauLogin = document.getElementById('login_demandeur' + index).innerHTML;
+    // Création d'un objet pour stocker les paramètres à envoyer
+    var params = {};
+
+    // Vérification des valeurs et ajout aux paramètres non nuls
+    if (nouveauNom !== null && nouveauNom !== "") {
+        params.nouveauNom = nouveauNom;
+    }
+    if (nouveauPrenom !== null && nouveauPrenom !== "") {
+        params.nouveauPrenom = nouveauPrenom;
+    }
+    if (nouvelleAdresse !== null && nouvelleAdresse !== "") {
+        params.nouvelleAdresse = nouvelleAdresse;
+    }
+    if (nouveauCodePostal !== null && nouveauCodePostal !== "") {
+        params.nouveauCodePostal = nouveauCodePostal;
+    }
+    if (nouveauTelephone !== null && nouveauTelephone !== "") {
+        params.nouveauTelephone = nouveauTelephone;
+    }
+
+    // Vérifier si des paramètres ont été ajoutés avant d'envoyer la requête AJAX
+    if (Object.keys(params).length > 0) {
+        // Envoi des nouvelles valeurs au serveur (par exemple, via une requête AJAX)
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4) {
+                console.log("Réponse complète du serveur : " + xhr.responseText);
+
+                if (xhr.status == 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+
+                        if (response.status === 'success') {
+                            alert("Données du demandeur modifiées avec succès!");
+                            // Actualisez la page ou effectuez d'autres actions après la modification
+                        } else if (response.status === 'error') {
+                            console.error("Erreur de modification côté serveur. Message du serveur : " + response.message);
+                        } else {
+                            console.error("Réponse inattendue du serveur.");
+                        }
+                    } catch (error) {
+                        console.error("Erreur lors de l'analyse de la réponse JSON : " + error);
+                    }
+                } else {
+                    console.error("Erreur de modification côté serveur. Statut HTTP : " + xhr.status);
+                }
+            }
+        };
+
+        // Construction de la chaîne de requête avec les nouvelles valeurs
+        var queryString = Object.keys(params).map(function (key) {
+            return key + '=' + encodeURIComponent(params[key]);
+        }).join('&');
+
+        // Ouverture de la requête AJAX (assurez-vous d'ajuster l'URL du script serveur)
+        xhr.open("POST", "../controleur/controleur_modif_demandeur.php?action=modifierDemandeur", true);
+
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+        // Envoi de la requête avec la chaîne de requête
+        xhr.send(queryString);
+    } else {
+        console.error("Aucune nouvelle valeur fournie.");
+    }
+}
+
+function supprimerDemandeur(num_demandeur) {
+    // Demander confirmation avant de supprimer le demandeur
+    if (confirm("Êtes-vous sûr de vouloir supprimer ce demandeur ?")) {
+        // Rediriger vers la page de suppression du demandeur avec le numéro du demandeur
+        window.location.href = "../controleur/controleur_admin.php?action=supprimer_demandeur&num_demandeur=" + num_demandeur;
+
+    }
+}
+function supprimerVisiteAdmin(id_visite) {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cette visite ?")) {
+        // Créer une instance de l'objet XMLHttpRequest
+        var xhr = new XMLHttpRequest();
+        
+        // Définir le type de requête et l'URL
+        xhr.open('GET', '../controleur/controleur_admin.php?action=supprimer_visite&id_visite=' + id_visite, true);
+        
+        // Définir le type de contenu à envoyer
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        
+        // Gérer la réponse de la requête
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                console.error(' suppresion de la visite.');
+            } else {
+                // Gérer les erreurs en cas de problème avec la requête
+                console.error('Erreur lors de la suppression de la visite.');
+            }
+        };
+        
+        // Envoyer la requête avec l'ID de la visite à supprimer
+        xhr.send('id_visite=' + id_visite);
+    }
+}
+
+

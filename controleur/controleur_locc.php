@@ -17,7 +17,11 @@ class InscriptionLocataireController {
         $this->confirmation = "Erreur : paramètre 'num_appt' non défini dans le formulaire.";
         $this->redirigerAvecErreurs([$this->confirmation]);
     }
-
+    public function authentifier($login_loc, $motdepasse_loc) {
+        $authController = new AuthentificationLocataireController();
+        $authController->authentifier($login_loc, $motdepasse_loc);
+        $this->confirmation = $authController->getConfirmation();
+    }
     public function traiterInscription() {
         if (!$this->champsCpTelValides()) {
             $this->errors[] = "Les champs des téléphones, code postal et des numéros ne doivent contenir que des chiffres.";
@@ -99,6 +103,7 @@ class InscriptionLocataireController {
     }
 }
 // Vérifier si le formulaire a été soumis
+// Vérifier si le formulaire a été soumis
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Vérifier si le paramètre 'num_appt' est défini
     if (isset($_POST['num_appt'])) {
@@ -125,7 +130,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $controller->traiterInscription();
         $confirmation = $controller->getConfirmation();
     }
+
+    // Vérifiez si le formulaire de connexion est soumis
+    if (isset($_POST['action']) && $_POST['action'] === 'connexion_locataire') {
+        $login_loc = $_POST['login_loc'];
+        $motdepasse_loc = $_POST['motdepasse_loc'];
+
+        // Créez une instance de InscriptionLocataireController
+        $inscriptionLocataireController = new InscriptionLocataireController();
+
+        // Appelez la méthode d'authentification dans InscriptionLocataireController
+        $inscriptionLocataireController->authentifier($login_loc, $motdepasse_loc);
+
+        // Récupérez la confirmation et affichez-la dans votre vue
+        $confirmation = $inscriptionLocataireController->getConfirmation();
+    }
 }
+
+// Utilisez $confirmation dans votre vue pour informer l'utilisateur
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && $_POST['action'] === 'supprimerLocataire') {
         // Assurez-vous que l'utilisateur est connecté
@@ -148,11 +170,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             echo 'L\'utilisateur n\'est pas connecté.';
         }
-    } else {
-        echo 'Action non autorisée.';
     }
-} else {
-    echo 'Méthode non autorisée.';
+    if (isset($_POST['action']) && $_POST['action'] === 'connexion_locataire') {
+        // Vérifier si les champs requis sont remplis
+        if (isset($_POST['login_loc'], $_POST['motdepasse_loc'])) {
+            $login_loc = $_POST['login_loc'];
+            $motdepasse_loc = $_POST['motdepasse_loc'];
+    
+            // Instancier le contrôleur de l'inscription du locataire
+            $inscriptionLocataireController = new InscriptionLocataireController();
+    
+            // Appeler la méthode d'authentification du locataire
+            $inscriptionLocataireController->authentifier($login_loc, $motdepasse_loc);
+    
+            // Récupérer la confirmation
+            $confirmation = $inscriptionLocataireController->getConfirmation();
+    
+            // Utiliser $confirmation dans votre vue pour informer l'utilisateur
+            // par exemple, vous pouvez afficher un message de confirmation ou d'erreur
+            echo $confirmation;
+        } else {
+            // Afficher un message d'erreur si les champs requis ne sont pas remplis
+            echo "Veuillez remplir tous les champs requis.";
+        }
+    }
 }
 
 // Utilisez $confirmation dans votre vue pour informer l'utilisateur.

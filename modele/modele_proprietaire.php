@@ -36,7 +36,9 @@ class proprietaire {
     public function getNumeroProp() {
         return $this->numero_prop;
     }
-
+    public function getnom_prop() {
+        return $this->nom_prop;
+    }
     public function inscription() {
         // Hash du mot de passe
         $hashedPassword = password_hash($this->motdepasse_pro, PASSWORD_DEFAULT);
@@ -236,6 +238,24 @@ public function getLoyerTotalParProprietaire($numero_prop) {
     } catch (PDOException $e) {
         // Gérez les erreurs ici si nécessaire
         echo "Erreur : " . $e->getMessage();
+        return false;
+    }
+}
+public function getAllProprietaire() {
+    try {
+        $connexionDB = new ConnexionDB();
+        $maConnexion = $connexionDB->get_connexion();
+        
+        // Requête SQL pour récupérer tous les propriétaires
+        $sql = "SELECT * FROM proprietaire";
+        $stmt = $maConnexion->prepare($sql);
+        $stmt->execute();
+        $proprietaires = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Retournez les propriétaires récupérés
+        return $proprietaires;
+    } catch (PDOException $e) {
+        // Gérez les exceptions ici
         return false;
     }
 }
