@@ -93,6 +93,35 @@ public static function getDemandeByDemandeurAndAppt($num_demandeur, $num_appt) {
     return $resultat;
 }
 
+public static function supprimeDemande($id_demandes_location) {
+    try {
+        // Connexion à la base de données
+        $connexionDB = new ConnexionDB();
+        $connexion = $connexionDB->get_connexion();
+        
+        // Requête de suppression
+        $requete = "DELETE FROM demandes_location WHERE id_demandes_location = :id_demandes_location";
+        $statement = $connexion->prepare($requete);
+        
+        // Exécution de la requête
+        $statement->execute(['id_demandes_location' => $id_demandes_location]);
+
+        // Vérification du succès de la suppression
+        if ($statement->rowCount() > 0) {
+            // Suppression réussie
+            return true;
+        } else {
+            // Aucune ligne n'a été supprimée
+            return false;
+        }
+    } catch (PDOException $e) {
+         echo $e->getMessage(); // Pour afficher le message d'erreur
+        return false;
+    } finally {
+        // Fermeture de la connexion à la base de données
+        $connexion = null;
+    }
+}
 
 
 

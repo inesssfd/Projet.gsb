@@ -9,8 +9,6 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
     exit;
 }
-
-// Créer une instance de la classe Locataire
 $locataire = new Locataire();
 $num_loc = $_SESSION['user_id'];
 $detailsLocataire = $locataire->getDetailslocataireById($num_loc);

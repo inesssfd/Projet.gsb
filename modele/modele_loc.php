@@ -102,42 +102,14 @@ class Locataire {
             return null; // Handle exceptions here
         }
     }
-
-    public function getAppartementsLocataire($login_loc)
-    {
-        try {
-            // Sélectionnez les appartements associés au locataire
-            $sql = "SELECT * FROM appartement WHERE num_appt IN (SELECT num_appt FROM locataire WHERE login_loc = :login_loc)";
-            $stmt = $this->maConnexion->prepare($sql);
-            $stmt->bindParam(':login_loc', $login_loc);
-            $stmt->execute();
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-            // Créez des objets Appartement à partir des résultats
-            $appartements = [];
-            foreach ($result as $appartementData) {
-                $appartement = new Appartement(
-                    $appartementData['num_appt'],
-                    $appartementData['type_appt'],
-                    $appartementData['prix_loc'],
-                    $appartementData['prix_charge'],
-                    $appartementData['rue'],
-                    $appartementData['arrondisement'],
-                    $appartementData['etage'],
-                    $appartementData['ascenceur'],
-                    $appartementData['preavis'],
-                    $appartementData['date_libre'],
-                    $appartementData['numero_prop']
-                );
-                $appartements[] = $appartement;
-            }
-    
-            return $appartements;
-        } catch (PDOException $e) {
-            // Gérez les exceptions ici (par exemple, en les enregistrant dans un fichier de journal)
-            return null; // Retourne null en cas d'erreur
-        }
+    public function loginExiste($login_loc) {
+        $requete = "SELECT COUNT(*) AS count FROM locataire WHERE login_loc = ?";
+        $statement = $this->maConnexion->prepare($requete);
+        $statement->execute([$login_loc]);
+        $resultat = $statement->fetch(PDO::FETCH_ASSOC);
+        return $resultat['count'] > 0;
     }
+
     
     public function inscription()
     {

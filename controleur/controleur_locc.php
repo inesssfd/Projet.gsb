@@ -23,6 +23,11 @@ class InscriptionLocataireController {
         $this->confirmation = $authController->getConfirmation();
     }
     public function traiterInscription() {
+        if ($this->locataire->loginExiste($_POST['login'])) {
+            $this->errors[] = "Ce login est déjà utilisé. Veuillez choisir un autre login.";
+            $this->redirigerAvecErreurs();
+            return;
+        }
         if (!$this->champsCpTelValides()) {
             $this->errors[] = "Les champs des téléphones, code postal et des numéros ne doivent contenir que des chiffres.";
             $this->redirigerAvecErreurs($this->errors);

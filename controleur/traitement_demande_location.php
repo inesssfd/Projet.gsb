@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 // Inclure la classe de demande et autres fichiers nécessaires
 include_once '..\controleur\param_connexion.php';
 include_once '..\modele\modele_demande.php';
@@ -30,5 +32,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Rediriger l'utilisateur vers une page de confirmation ou autre
     header("Location: ../vue/appartement_loué.php");
     exit();
+}
+
+
+function getDemandeByDemandeurAndAppt($num_demandeur, $num_appt) {
+    try {
+        // Appeler la méthode statique de la classe Demande pour récupérer la demande
+        return demande::getDemandeByDemandeurAndAppt($num_demandeur, $num_appt);
+    } catch (PDOException $e) {
+        // Gérer les exceptions PDO ici (par exemple, en les enregistrant dans un fichier journal)
+        return null;
+    }
 }
 ?>

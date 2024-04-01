@@ -1,26 +1,15 @@
 <?php
 session_start();
-if (!isset($_SESSION['num_demandeur']) && !isset($_SESSION['numero_prop'])) {
-    // Redirection vers la page de connexion
+if (!isset($_SESSION['num_demandeur'])) {
     header("Location: ../index.php");
     exit;
 }
-
-// Inclure la classe Visite ici (assurez-vous que le chemin est correct)
-include_once '../modele/modele_visite.php';
-include_once '../modele/modele_demandeur.php';
-include_once '../modele/modele_demande.php';
-
-// Récupérer le numéro du demandeur connecté depuis la session
+include_once '../controleur/controleur_demandeurs.php';
+include_once '../controleur/traitement_demande_location.php';
 $num_demandeur_connecte = isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : null;
-
-// Récupérer le profil du demandeur connecté
-$profil_demandeur = (new demandeurs())->getDemandeurById($num_demandeur_connecte);
-
-// Récupérer les visites prévues par le demandeur connecté
-$visites_prevues = (new Visite())->getVisitesByDemandeur($num_demandeur_connecte);
+$profil_demandeur = $demandeurs->getDemandeurById($num_demandeur_connecte);
+$visites_prevues = getVisitesByDemandeur($num_demandeur_connecte);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -60,11 +49,11 @@ $visites_prevues = (new Visite())->getVisitesByDemandeur($num_demandeur_connecte
 $count = 1; // Counter to add classes dynamically
 foreach ($visites_prevues as $visite_prevue) {
     $apartmentClass = 'apartment' . $count; // Dynamic class name
-    echo "<div id='visite_" . $visite_prevue['id_visite'] . "' class='visite $apartmentClass'>";
+    echo "<div class='visite $apartmentClass'>";
     echo "<p> Date de visite : " . $visite_prevue['date_visite'] . " Appartement : " . $visite_prevue['num_appt'] . "</p>";
    
     // Vérifier si la visite est une demande de location
-    $demande = Demande::getDemandeByDemandeurAndAppt($_SESSION['num_demandeur'], $visite_prevue['num_appt']);
+    $demande = getDemandeByDemandeurAndAppt($_SESSION['num_demandeur'], $visite_prevue['num_appt']);
 
     if ($demande) {
         if ($demande['etat_demande'] !== 'Refusée') { // Vérifie si la demande n'est pas refusée
@@ -79,13 +68,13 @@ foreach ($visites_prevues as $visite_prevue) {
                 echo "<a class=\"link-button\" href=\"formulaire_location.php?num_appt=" . $visite_prevue['num_appt'] . "&num_demandeur=" . $num_demandeur_connecte . "\">Devenir locataire</a>";
             }
         } else {
-            // Si la demande est refusée, afficher un message indiquant que la demande est refusée
+            echo "<button onclick=\"supprimerDemande(" . $demande['id_demandes_location'] . ")\">Supprimer demande</button>";
             echo "<p>Statut de la demande : Refusée</p>";
             echo "<p>Cette demande a été refusée.</p>";
         }
     } else {
         // Si aucune demande n'existe, afficher les boutons "Modifier visite" et "Supprimer visite"
-        echo "<button onclick=\"supprimerVisite(" . $visite_prevue['id_visite'] . ")\">Supprimer</button>";
+        echo "<button onclick=\"supprimerVisite(" . $visite_prevue['id_visite'] . ")\">Supprimer visite</button>";
         echo "<button onclick=\"modifierDate(" . $visite_prevue['id_visite'] . ", '" . $visite_prevue['date_visite'] . "')\">Modifier visite</button>";
         echo "<a class=\"link-button\" href=\"formulaire_demande.php?num_appt=" . $visite_prevue['num_appt'] . "&num_demandeur=" . $num_demandeur_connecte . "\">Faire une demande de location</a>";
     }

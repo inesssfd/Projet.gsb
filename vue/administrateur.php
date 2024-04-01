@@ -1,7 +1,5 @@
 <?php
-// Inclure le contrôleur pour récupérer les données
 include_once '../controleur/controleur_admin.php';
-// Instancier le contrôleur et récupérer les données
 $adminController = new AdminController();
 $data = $adminController->afficherVueAdmin();
 $demandeurs = $data['demandeurs'];

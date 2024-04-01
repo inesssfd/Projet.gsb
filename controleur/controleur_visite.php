@@ -4,80 +4,6 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 include_once '..\modele\modele_visite.php';
 
-class VisiteController {
-    private $visite;
-    private $errors = [];
-    public function __construct($donneesVisite = null) {
-        if ($donneesVisite !== null) {
-            $this->visite = new Visite(
-                '?', // id_visite
-                $donneesVisite['num_demandeur'],
-                $donneesVisite['date_visite'],
-                $donneesVisite['num_appt']
-            );
-        }
-    }
-    
-
-    public function traiterVisite() {
-        try {
-            // Vérifier si la date de visite est antérieure à la date actuelle
-            $date_visite = $this->visite->getDateVisite();
-            $date_actuelle = date('Y-m-d'); // Obtenez la date actuelle au format 'AAAA-MM-JJ'
-    
-            if ($date_visite < $date_actuelle) {
-                $this->errors[] = "La date de visite ne peut pas être antérieure à la date actuelle.";
-                return; // Arrêtez le traitement de la visite
-            }
-    
-            // La date de visite est valide, procédez au traitement
-            if ($this->visite->visiter()) {
-                header('Location:../vue/appartement_loué.php');
-                exit;
-            } else {
-                echo "Erreur lors de l'ajout de la visite.";
-            }
-        } catch (PDOException $e) {
-            echo "Erreur PDO : " . $e->getMessage();
-        } catch (Exception $e) {
-            echo "Erreur PHP : " . $e->getMessage();
-        }
-    }
-    
-public function modifierDateVisite($id_visite, $nouvelle_date) {
-    try {
-        // Créez une instance de la classe Visite
-        $visite = new Visite();
-        
-        // Appelez la fonction pour mettre à jour la date de visite
-        $resultat = $visite->updateDateVisite($id_visite, $nouvelle_date);
-
-        // Envoyez une réponse au client
-        echo $resultat ? 'Mise à jour réussie' : 'Échec de la mise à jour';
-        exit(); // Assurez-vous de terminer le script ici
-    } catch (PDOException $e) {
-        echo "Erreur PDO lors de la préparation ou de l'exécution de la requête : " . $e->getMessage();
-        return false;
-    }
-}
-public function supprimerVisite($id_visite) {
-    try {
-        // Créez une instance de la classe Visite
-        $visite = new Visite();
-        
-        // Appelez la fonction pour supprimer la visite
-        $resultat = $visite->supprimerVisite($id_visite);
-
-        // Envoyez une réponse au client
-        echo $resultat ? 'Suppression réussie' : 'Échec de la suppression';
-        exit(); // Assurez-vous de terminer le script ici
-    } catch (PDOException $e) {
-        echo "Erreur PDO lors de la préparation ou de l'exécution de la requête : " . $e->getMessage();
-        return false;
-    }
-}
-
-}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Assurez-vous d'avoir les données nécessaires du formulaire
@@ -93,9 +19,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Debug - date_visite: " . $donneesVisite['date_visite'] . "<br>";
         echo "Debug - num_appt: " . $donneesVisite['num_appt'] . "<br>";
 
-        // Créez une instance de la classe VisiteController et traitez la visite
-        $visiteController = new VisiteController($donneesVisite);
-        $visiteController->traiterVisite();
+        // Création d'une instance de la classe Visite
+        $visite = new Visite(
+            '?', // id_visite
+            $donneesVisite['num_demandeur'],
+            $donneesVisite['date_visite'],
+            $donneesVisite['num_appt']
+        );
+
+        traiterVisite($visite);
 
     } catch (PDOException $e) {
         echo "Erreur PDO lors de la préparation ou de l'exécution de la requête : " . $e->getMessage();
@@ -110,13 +42,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         // Ajoutez un message de débogage pour vérifier l'action
         echo "Action de suppression de visite détectée. ID de visite : $id_visite";
 
-        // Créez une instance du contrôleur de visite sans passer de données
-        $visiteController = new VisiteController(); // Supprimez les données d'initialisation ici
-        $visiteController->supprimerVisite($id_visite);
+        // Suppression de la visite
+        supprimerVisite($id_visite);
+    }
+}
+function modifierDateVisite($id_visite, $nouvelle_date) {
+    try {
+        // Créez une instance de la classe Visite
+        $visite = new Visite();
+        
+        // Appelez la fonction pour mettre à jour la date de visite
+        $resultat = $visite->updateDateVisite($id_visite, $nouvelle_date);
+
+        // Envoyez une réponse au client
+        echo $resultat ? 'Mise à jour réussie' : 'Échec de la mise à jour';
+        exit(); // Assurez-vous de terminer le script ici
+    } catch (PDOException $e) {
+        echo "Erreur PDO lors de la préparation ou de l'exécution de la requête : " . $e->getMessage();
+        return false;
     }
 }
 
+function traiterVisite($visite) {
+    try {
+        // Vérifier si la date de visite est antérieure à la date actuelle
+        $date_visite = $visite->getDateVisite();
+        $date_actuelle = date('Y-m-d'); // Obtenez la date actuelle au format 'AAAA-MM-JJ'
 
+        if ($date_visite < $date_actuelle) {
+            echo "La date de visite ne peut pas être antérieure à la date actuelle.";
+            return; // Arrêtez le traitement de la visite
+        }
 
+        // La date de visite est valide, procédez au traitement
+        if ($visite->visiter()) {
+            header('Location:../vue/appartement_loué.php');
+            exit;
+        } else {
+            echo "Erreur lors de l'ajout de la visite.";
+        }
+    } catch (PDOException $e) {
+        echo "Erreur PDO : " . $e->getMessage();
+    } catch (Exception $e) {
+        echo "Erreur PHP : " . $e->getMessage();
+    }
+}
 
+function supprimerVisite($id_visite) {
+    try {
+        // Créez une instance de la classe Visite
+        $visite = new Visite();
+        
+        // Appelez la fonction pour supprimer la visite
+        $resultat = $visite->supprimerVisite($id_visite);
+
+        // Envoyez une réponse au client
+        echo $resultat ? 'Suppression réussie' : 'Échec de la suppression';
+        exit(); // Assurez-vous de terminer le script ici
+    } catch (PDOException $e) {
+        echo "Erreur PDO lors de la préparation ou de l'exécution de la requête : " . $e->getMessage();
+        return false;
+    }
+}
 ?>

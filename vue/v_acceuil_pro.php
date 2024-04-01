@@ -1,18 +1,13 @@
 <?php
 session_start();
-include_once '../modele/modele_app.php';
-
+include_once '../controleur/controleur_proprietaire.php';
 if (isset($_SESSION['numero_prop'])) {
     $numero_prop = $_SESSION['numero_prop'];
-
-    // Récupérer les appartements pour le propriétaire connecté
-    $appartements = Appartement::getAllAppartementsByProprietaire($numero_prop);
+    $appartements = getAllAppartementsByProprietaire($numero_prop);
 } else {
-    // Redirection vers la page de connexion si le propriétaire n'est pas connecté
     header("Location: ../index.php");
     exit;
 }
-include_once '../modele/modele_demande.php';
 ?>
 
 <!DOCTYPE html>
@@ -62,7 +57,7 @@ include_once '../modele/modele_demande.php';
         echo "</ul>";  // Fermer la liste interne ici
 
         // Afficher les demandes associées à cet appartement dans la même structure que les appartements
-        $demandes_appartement = Demande::getDemandesByAppartement($appartement['num_appt']);
+        $demandes_appartement = getDemandesByAppartement($appartement['num_appt']);
         if (!empty($demandes_appartement)) {
             echo "<div class='demandes-container'>";
             echo "<h3>Demandes pour l'appartement " . $appartement['num_appt'] . "</h3>";

@@ -8,12 +8,10 @@ if (!isset($_SESSION['num_demandeur']) && !isset($_SESSION['numero_prop'])) {
     header("Location: ../index.php");
     exit;
 }
-
-include_once '../modele/modele_app.php';
+include_once '../controleur/controleur_app.php';
 
 // Récupérer la liste des appartements
-$appartements_demandeur = Appartement::getAppartementsSansLocataireEtDateLibrePasse();
-
+$appartements = getAppartementsSansLocataireEtDateLibrePasse();
 if (isset($_GET['action']) && $_GET['action'] === 'rechercherAppartements') {
     // Récupérer les valeurs des champs de recherche
     $type_appt = isset($_GET['type_appt']) ? $_GET['type_appt'] : null;
@@ -27,7 +25,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'rechercherAppartements') {
     if ($appartements_demandeur !== false) {
         // La recherche a réussi, traitez les résultats ici
     } else {
-        $appartements_demandeur = Appartement::getAppartementsSansLocataireEtDateLibrePasse();
+        $appartements = getAppartementsSansLocataireEtDateLibrePasse();
     }
 }
 
@@ -114,37 +112,47 @@ if (isset($_GET['action']) && $_GET['action'] === 'rechercherAppartements') {
     $num_demandeur_connecte = isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : null;
     $apartments_in_row = 0;
 
-    foreach ($appartements_demandeur as $appartement) {
-        // Start a new row after every 3 apartments
-        if ($apartments_in_row % 3 === 0) {
-            echo '<div class="row" style="display: flex; justify-content: space-between; margin-bottom: 20px;">';
-        }
-        echo '<div class="appartement-proprio" style="max-width: 60%;">';
-        echo "<strong>Type :</strong> " . $appartement->getTypeAppt() . "<br>";
-        echo "<strong>Prix :</strong> " . $appartement->getPrixLoc() . "<br>";
-        echo "<strong>Charges :</strong> " . $appartement->getPrixCharge() . "<br>";
-        echo "<strong>Rue :</strong> " . $appartement->getRue() . "<br>";
-        echo "<strong>Arrondissement :</strong> " . $appartement->getArrondisement() . "<br>";
-        echo "<strong>Étage :</strong> " . $appartement->getEtage() . "<br>";
-        echo "<strong>Ascenseur :</strong> " . $appartement->getAscenceur() . "<br>";
-        echo "<strong>Préavis :</strong> " . $appartement->getPreavis() . "<br>";
-        echo "<strong>Date libre :</strong> " . $appartement->getDateLibre() . "<br>";
-        echo "<strong>Numéro Propriétaire :</strong> " . $appartement->getNumeroProp() . "<br>";        
-        echo '<input type="hidden" name="num_appt" value="' . $appartement->getNumAppt() . '">';
-        echo '<button class="visit-button" onclick=\'console.log("Visiter button clicked"); showVisitForm(' . $appartement->getNumAppt() . ',' . $num_demandeur_connecte . ')\'>Visiter</button></p>';
-        echo "</div>";
+    // Début du bloc foreach pour afficher les résultats des appartements
+    foreach ($appartements as $appartement) {
 
-        // End the row after every 3 apartments
-        if ($apartments_in_row % 3 === 2 || $apartments_in_row === count($appartements_demandeur) - 1) {
-            echo '</div>';
-        }
+        // Vérification des critères de recherche
+        if ((!isset($type_appt) || $type_appt == "" || $type_appt == $appartement->getTypeAppt()) &&
+            (!isset($arrondisement) || $arrondisement == "" || $arrondisement == $appartement->getArrondisement()) &&
+            (!isset($prix_loc) || $prix_loc == "" || $prix_loc >= $appartement->getPrixLoc())) {
 
-        $apartments_in_row++;
+            // Commencez une nouvelle ligne après chaque 3 appartements
+            if ($apartments_in_row % 3 === 0) {
+                echo '<div class="row" style="display: flex; justify-content: space-between; margin-bottom: 20px;">';
+            }
+            echo '<div class="appartement-proprio" style="max-width: 60%;">';
+            // Affichage des détails de l'appartement
+            echo "<strong>Type :</strong> " . $appartement->getTypeAppt() . "<br>";
+            echo "<strong>Prix :</strong> " . $appartement->getPrixLoc() . "<br>";
+            echo "<strong>Charges :</strong> " . $appartement->getPrixCharge() . "<br>";
+            echo "<strong>Rue :</strong> " . $appartement->getRue() . "<br>";
+            echo "<strong>Arrondissement :</strong> " . $appartement->getArrondisement() . "<br>";
+            echo "<strong>Étage :</strong> " . $appartement->getEtage() . "<br>";
+            echo "<strong>Ascenseur :</strong> " . $appartement->getAscenceur() . "<br>";
+            echo "<strong>Préavis :</strong> " . $appartement->getPreavis() . "<br>";
+            echo "<strong>Date libre :</strong> " . $appartement->getDateLibre() . "<br>";
+            echo "<strong>Numéro Propriétaire :</strong> " . $appartement->getNumeroProp() . "<br>";        
+            echo '<input type="hidden" name="num_appt" value="' . $appartement->getNumAppt() . '">';
+            echo '<button class="visit-button" onclick=\'console.log("Visiter button clicked"); showVisitForm(' . $appartement->getNumAppt() . ',' . $num_demandeur_connecte . ')\'>Visiter</button></p>';
+            echo "</div>";
+
+            // Terminer la ligne après chaque 3 appartements
+            if ($apartments_in_row % 3 === 2 || $apartments_in_row === count($appartements) - 1) {
+                echo '</div>';
+            }
+
+            $apartments_in_row++;
+        }
     }
 
     echo "</div>";
     ?>
 </div>
+
 
 
 <div id="myModal" class="modal">

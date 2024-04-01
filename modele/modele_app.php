@@ -128,7 +128,7 @@ class Appartement {
         error_log("Fonction supprimerAppartement appelée pour num_appt=" . $num_appt);
         $connexionDB = new ConnexionDB();
         $pdo = $connexionDB->get_connexion();
-        
+        echo "Numéro de l'appartement à supprimer : " . $num_appt;
         // Requête SQL DELETE avec le bon nom de table
         $sql = "DELETE FROM appartement WHERE num_appt = :num_appt";
         
@@ -261,7 +261,6 @@ class Appartement {
             return false;
         }
     }
-    
     public static function getAppartementsSansLocataireEtDateLibrePasse() {
         try {
             $connexionDB = new ConnexionDB();

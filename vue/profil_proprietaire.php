@@ -1,24 +1,19 @@
 <?php
-// Inclure le contrôleur pour obtenir les détails du propriétaire
 include_once '../controleur/controleur_proprietaire.php';
-include_once '../modele/modele_loc.php';
-// Créer une instance de ProprietaireController
-$controller = new ProprietaireController();
 $num_proprietaire_connecte = isset($_SESSION['numero_prop']) ? $_SESSION['numero_prop'] : null;
-// Appel de la méthode pour obtenir les détails du propriétaire
-$details_proprietaire = $controller->getDetailsProprietaire();
-$loyerTotal = $controller->recupererLoyerTotal();
+$details_proprietaire = getDetailsProprietaire();
+$loyerTotal =recupererLoyerTotal();
 if (!isset($_SESSION['numero_prop'])) {
     // Redirection vers la page de connexion
     header("Location: ../index.php");
     exit;
-}
-        ?>
+}?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../style/script.js" defer></script>
     <link rel="stylesheet" href="../style/style_appartement.css">
     <title>Profil du Propriétaire</title>
 </head>

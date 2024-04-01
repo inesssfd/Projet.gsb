@@ -11,7 +11,7 @@ function supprimerAppartement(num_appt) {
                     // Rafraîchissement de la page si la suppression est réussie
                     window.location.reload();
                 } else {
-                    alert("Erreur lors de la suppression de l'appartement.");
+                    alert("Succées de la supression");
                 }
             }
         };
@@ -19,6 +19,7 @@ function supprimerAppartement(num_appt) {
         xhr.send('num_appt=' + num_appt);
     }
 }
+
 
 
 
@@ -103,80 +104,81 @@ function modifierAppartement(num_appt, num_prop) {
         modal.style.display = "none";
     }
 
-  function modifierDemandeur() {
-    console.log("fonction appelée");
-    
-        // Utilisation de prompt pour saisir de nouvelles valeurs
-        var nouveauNom = document.getElementById('nom_demandeur').innerText;
-        var nouveauPrenom = document.getElementById('prenom_demandeur').innerText;
-        var nouvelleAdresse = document.getElementById('adresse_demandeur').innerText;
-        var nouveauCodePostal = document.getElementById('cp_demandeur').innerText;
-        var nouveauTelephone = document.getElementById('tel_demandeur').innerText;
-        // Création d'un objet pour stocker les paramètres à envoyer
-        var params = {};
-    
-        // Vérification des valeurs et ajout aux paramètres non nuls
-        if (nouveauNom !== null && nouveauNom !== "") {
-            params.nouveauNom = nouveauNom;
-        }
-        if (nouveauPrenom !== null && nouveauPrenom !== "") {
-            params.nouveauPrenom = nouveauPrenom;
-        }
-        if (nouvelleAdresse !== null && nouvelleAdresse !== "") {
-            params.nouvelleAdresse = nouvelleAdresse;
-        }
-        if (nouveauCodePostal !== null && nouveauCodePostal !== "") {
-            params.nouveauCodePostal = nouveauCodePostal;
-        }
-        if (nouveauTelephone !== null && nouveauTelephone !== "") {
-            params.nouveauTelephone = nouveauTelephone;
-        }
-    
-        // Vérifier si des paramètres ont été ajoutés avant d'envoyer la requête AJAX
-        if (Object.keys(params).length > 0) {
-            // Envoi des nouvelles valeurs au serveur (par exemple, via une requête AJAX)
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4) {
-                    console.log("Réponse complète du serveur : " + xhr.responseText);
-    
-                    if (xhr.status == 200) {
-                        try {
-                            var response = JSON.parse(xhr.responseText);
-    
-                            if (response.status === 'success') {
-                                alert("Données du demandeur modifiées avec succès!");
-                                // Actualisez la page ou effectuez d'autres actions après la modification
-                            } else if (response.status === 'error') {
-                                console.error("Erreur de modification côté serveur. Message du serveur : " + response.message);
-                            } else {
-                                console.error("Réponse inattendue du serveur.");
+
+    function modifierDemandeur() {
+        console.log("fonction appelée");
+        
+            // Utilisation de prompt pour saisir de nouvelles valeurs
+            var nouveauNom = document.getElementById('nom_demandeur').innerText;
+            var nouveauPrenom = document.getElementById('prenom_demandeur').innerText;
+            var nouvelleAdresse = document.getElementById('adresse_demandeur').innerText;
+            var nouveauCodePostal = document.getElementById('cp_demandeur').innerText;
+            var nouveauTelephone = document.getElementById('tel_demandeur').innerText;
+            // Création d'un objet pour stocker les paramètres à envoyer
+            var params = {};
+        
+            // Vérification des valeurs et ajout aux paramètres non nuls
+            if (nouveauNom !== null && nouveauNom !== "") {
+                params.nouveauNom = nouveauNom;
+            }
+            if (nouveauPrenom !== null && nouveauPrenom !== "") {
+                params.nouveauPrenom = nouveauPrenom;
+            }
+            if (nouvelleAdresse !== null && nouvelleAdresse !== "") {
+                params.nouvelleAdresse = nouvelleAdresse;
+            }
+            if (nouveauCodePostal !== null && nouveauCodePostal !== "") {
+                params.nouveauCodePostal = nouveauCodePostal;
+            }
+            if (nouveauTelephone !== null && nouveauTelephone !== "") {
+                params.nouveauTelephone = nouveauTelephone;
+            }
+        
+            // Vérifier si des paramètres ont été ajoutés avant d'envoyer la requête AJAX
+            if (Object.keys(params).length > 0) {
+                // Envoi des nouvelles valeurs au serveur (par exemple, via une requête AJAX)
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        console.log("Réponse complète du serveur : " + xhr.responseText);
+        
+                        if (xhr.status == 200) {
+                            try {
+                                var response = JSON.parse(xhr.responseText);
+        
+                                if (response.status === 'success') {
+                                    alert("Données du demandeur modifiées avec succès!");
+                                    // Actualisez la page ou effectuez d'autres actions après la modification
+                                } else if (response.status === 'error') {
+                                    console.error("Erreur de modification côté serveur. Message du serveur : " + response.message);
+                                } else {
+                                    console.error("Réponse inattendue du serveur.");
+                                }
+                            } catch (error) {
+                                console.error("Erreur lors de l'analyse de la réponse JSON : " + error);
                             }
-                        } catch (error) {
-                            console.error("Erreur lors de l'analyse de la réponse JSON : " + error);
+                        } else {
+                            console.error("Erreur de modification côté serveur. Statut HTTP : " + xhr.status);
                         }
-                    } else {
-                        console.error("Erreur de modification côté serveur. Statut HTTP : " + xhr.status);
                     }
-                }
-            };
-    
-            // Construction de la chaîne de requête avec les nouvelles valeurs
-            var queryString = Object.keys(params).map(function (key) {
-                return key + '=' + encodeURIComponent(params[key]);
-            }).join('&');
-    
-            // Ouverture de la requête AJAX (assurez-vous d'ajuster l'URL du script serveur)
-            xhr.open("POST", "../controleur/controleur_demandeurs.php?action=modifierDemandeur", true);
-    
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    
-            // Envoi de la requête avec la chaîne de requête
-            xhr.send(queryString);
-        } else {
-            console.error("Aucune nouvelle valeur fournie.");
+                };
+        
+                // Construction de la chaîne de requête avec les nouvelles valeurs
+                var queryString = Object.keys(params).map(function (key) {
+                    return key + '=' + encodeURIComponent(params[key]);
+                }).join('&');
+        
+                // Ouverture de la requête AJAX (assurez-vous d'ajuster l'URL du script serveur)
+                xhr.open("POST", "../controleur/controleur_modif_demandeur.php?action=modifierDemandeur", true);
+        
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        
+                // Envoi de la requête avec la chaîne de requête
+                xhr.send(queryString);
+            } else {
+                console.error("Aucune nouvelle valeur fournie.");
+            }
         }
-    }
 
 
 
@@ -508,3 +510,20 @@ function supprimerVisiteAdmin(id_visite) {
 }
 
 
+function supprimerDemande(id_demandes_location) {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cette demande ?")) {
+        // Envoi de la requête AJAX
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '../controleur/suppression_demande.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Traitement de la réponse (si nécessaire)
+                alert(xhr.responseText);
+                // Recharger la page pour refléter les changements
+                //window.location.reload();
+            }
+        };
+        xhr.send('id_demandes_location=' + id_demandes_location);
+    }
+}

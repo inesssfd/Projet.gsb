@@ -1,11 +1,10 @@
 <?php
 session_start();
-if (!isset($_SESSION['num_demandeur']) && !isset($_SESSION['numero_prop'])) {
+if (!isset($_SESSION['num_demandeur'])) {
     // Redirection vers la page de connexion
     header("Location: ../index.php");
     exit;
 }
-
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -89,7 +88,7 @@ if (!isset($_SESSION['num_demandeur']) && !isset($_SESSION['numero_prop'])) {
             </div>
             <div class="input-wrapper">
                 <label for="login_loc">Identifiant de connexion:</label>
-                <input type="text" id="login_loc" name="login_loc" value="<?php echo isset($_SESSION['login']) ? htmlspecialchars($_SESSION['login']) : ''; ?>" readonly>
+                <input type="text" id="login_loc" name="login_loc" value="<?php echo isset($_SESSION['login']) ? htmlspecialchars($_SESSION['login']) : ''; ?>" >
             </div>
 
             <div class="input-wrapper">
