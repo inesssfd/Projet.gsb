@@ -11,97 +11,81 @@ include_once '../modele/modele_app.php';
 $confirmation = '';
 $errors = [];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Vérifier si le formulaire d'ajout, de modification ou de suppression est soumis
-    if (isset($_POST['action'])) {
-        if ($_POST['action'] === 'ajouterAppartement') {
-            ajouterAppartement();
-        } elseif ($_POST['action'] === 'modifierAppartement') {
-            modifierAppartement();
-        } elseif ($_POST['action'] === 'supprimerAppartement') {
-            $this->supprimerAppartement(); // Correction ici
-        }
-    }
+$type_appt = isset($_GET['type_appt']) ? $_GET['type_appt'] : null;
+$arrondisement = isset($_GET['arrondisement']) ? $_GET['arrondisement'] : null;
+$prix_max = isset($_GET['prix']) ? $_GET['prix'] : null;
+$appartements = Appartement::getAppartementsSansLocataireEtDateLibrePasse();
+
+if ($appartements !== false && count($appartements) > 0) {
+} else {
+    // Aucun appartement trouvé ou erreur lors de la récupération
+    echo "Aucun appartement disponible pour le moment.";
 }
+// Vérification si les données POST sont présentes
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($_POST['action'] == 'ajouterAppartement') {
+        $appartement = new Appartement();
+        $appartement->setTypeAppt($_POST['type_appt']);
+        $appartement->setPrixLoc($_POST['prix_loc']);
+        $appartement->setPrixCharge($_POST['prix_charge']);
+        $appartement->setRue($_POST['rue']);
+        $appartement->setArrondisement($_POST['arrondisement']);
+        $appartement->setEtage($_POST['etage']);
+        $appartement->setAscenceur(isset($_POST['ascenseur']) ? $_POST['ascenseur'] : 0);
+        $appartement->setPreavis($_POST['preavis']);
+        $appartement->setDateLibre($_POST['date_libre']);
+        $appartement->setNumeroProp($_POST['numero_prop']);
 
 
+    // Appel de la méthode ajouterAppartement de l'objet $appartement
+    if ($appartement->ajouterAppartement()) {
+        // Redirection vers une page de succès
+        header("Location: ../vue/v_acceuil_pro.php");
+        exit();
+    } else {
+        $_SESSION['confirmation'] = "Erreur lors de l'ajout de l'appartement : Impossible d'ajouter un nouvel appartement. Limite atteinte pour ce propriétaire.";
+        header('Location: ../vue/ajouter_logement.php'); // Redirection vers la page d'ajout d'appartement
+        exit();
+    }
+} elseif ($_POST['action'] === 'modifierAppartement') {
+    // Récupération des données du formulaire
+    $num_appt = $_POST['num_appt'];
+    $num_prop = isset($_POST['num_proprietaire_connecte']) ? $_POST['num_proprietaire_connecte'] : null;
+    // Appel de la fonction pour modifier l'appartement
+    $modification_reussie = modifierAppartement($num_appt, $num_prop);
 
-function getAppartementsSansLocataireEtDateLibrePasse() {
-    try {
-        // Appeler la méthode statique de la classe Appartement pour récupérer les appartements sans locataire
-        return Appartement::getAppartementsSansLocataireEtDateLibrePasse();
-    } catch (PDOException $e) {
-        // Gérer les exceptions PDO ici (par exemple, en les enregistrant dans un fichier journal)
+    // Vérification de la réussite de la modification
+    if ($modification_reussie) {
+        echo json_encode(array('status' => 'success', 'message' => 'Modification réussie.'));
+        exit;
+    } else {
+        echo json_encode(array('status' => 'error', 'message' => 'Échec de la modification.'));
+        exit;
+    }
+} else {
+    // Si l'action est inconnue
+    echo json_encode(array('status' => 'error', 'message' => 'Action inconnue.'));
+    exit;
+}}
+
+function modifierAppartement($num_appt, $num_prop) {
+    // Vérifier si toutes les données nécessaires sont présentes
+    if (isset($_POST['nouveauType'], $_POST['nouveauPrix'], $_POST['nouvelleCharge'], $_POST['nouvelleRue'])) {
+        // Récupérer les nouvelles valeurs des champs éditables
+        $nouveauType = $_POST['nouveauType'];
+        $nouveauPrix = $_POST['nouveauPrix'];
+        $nouvelleCharge = $_POST['nouvelleCharge'];
+        $nouvelleRue = $_POST['nouvelleRue'];
+
+        // Appeler la fonction pour modifier l'appartement
+        $modification_reussie = Appartement::modifierAppartement($num_appt, $nouveauType, $nouveauPrix, $nouvelleCharge, $nouvelleRue, $num_prop);
+
+        return $modification_reussie;
+    } else {
         return false;
     }
 }
 
-
-function ajouterAppartement() {
-    // Validation du prix_loc pour s'assurer qu'il ne contient que des chiffres
-    if (!champ_prix()) {
-        $GLOBALS['errors'][] = "Les champs prix et ascenceur ne doivent contenir que des chiffres.";
-        redirigerAvecErreurs();
-        return;
-    }
-    
-    $num_appt = $_POST['num_appt'];
-    $type_appt = $_POST['type_appt'];
-    $prix_loc = $_POST['prix_loc'];
-    $prix_charge = $_POST['prix_charge'];
-    $rue = $_POST['rue'];
-    $arrondisement = $_POST['arrondisement'];
-    $etage = $_POST['etage'];
-    $ascenceur = $_POST['ascenceur'];
-    $preavis = $_POST['preavis'];
-    $date_libre = $_POST['date_libre'];
-    $numero_prop = $_POST['numero_prop'];
-
-    $appartement = new Appartement($num_appt, $type_appt, $prix_loc, $prix_charge, $rue, $arrondisement, $etage, $ascenceur, $preavis, $date_libre, $numero_prop);
-
-    try {
-        if ($appartement->ajouterAppartement()) {
-            // Redirection avec un message de succès
-            header('Location: ../vue/v_acceuil_pro.php?success=1');
-            exit();
-        } else {
-            // En cas d'échec, stocker le message d'erreur dans la variable de session
-            $_SESSION['confirmation'] = "Erreur lors de l'ajout de l'appartement vous avez deja trop d'appartement";
-            $GLOBALS['confirmation'] = $_SESSION['confirmation'];
-        }
-    } catch (PDOException $e) {
-        // En cas d'erreur PDO, affichez le message d'erreur spécifique
-        $_SESSION['confirmation'] = "Erreur lors de l'ajout de l'appartement : " . $e->getMessage();
-        $GLOBALS['confirmation'] = $_SESSION['confirmation'];
-    }
-}
-
-function champ_prix() {
-    return preg_match("/^\d+$/", $_POST['prix_loc']) && preg_match("/^\d+$/", $_POST['prix_charge'])&& preg_match("/^\d+$/", $_POST['etage']);
-}
-
-
-function modifierAppartement() {
-    // Récupérer les données POST
-    $num_prop = $_POST['num_prop'];
-    $num_appt = $_POST['num_appt'];
-    $nouveauType = $_POST['nouveauType'];
-    $nouveauPrix = $_POST['nouveauPrix'];
-    $nouvelleCharge = $_POST['nouvelleCharge'];
-    $nouvelleRue = $_POST['nouvelleRue'];
-
-    // Appeler la méthode pour modifier l'appartement
-    $resultat = Appartement::modifierAppartement($num_appt, $nouveauType, $nouveauPrix, $nouvelleCharge, $nouvelleRue, $num_prop);
-
-    // Vérifier le résultat de la modification
-    if ($resultat) {
-        // Modification réussie
-        $GLOBALS['confirmation'] = "L'appartement a été modifié avec succès.";
-    } else {
-        // Erreur lors de la modification
-        $GLOBALS['confirmation'] = "Erreur lors de la modification de l'appartement.";
-    }
-}
 
 function redirigerAvecErreurs() {
     $errorString = implode("&", array_map(function($error) {

@@ -1,19 +1,19 @@
 <?php
-include_once '../controleur/controleur_proprietaire.php';
+include_once '../controleur/profil_proprietaire.php';
 $num_proprietaire_connecte = isset($_SESSION['numero_prop']) ? $_SESSION['numero_prop'] : null;
-$details_proprietaire = getDetailsProprietaire();
-$loyerTotal =recupererLoyerTotal();
 if (!isset($_SESSION['numero_prop'])) {
     // Redirection vers la page de connexion
     header("Location: ../index.php");
     exit;
-}?>
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="../style/script.js" defer></script>
+    <script src="../style/proprietaire.js" defer></script>
     <link rel="stylesheet" href="../style/style_appartement.css">
     <title>Profil du Propriétaire</title>
 </head>
@@ -31,64 +31,57 @@ if (!isset($_SESSION['numero_prop'])) {
 
     <div id="profil" class="cbody">
     <h2>Profil du Propriétaire</h2>
-    <?php if (!empty($details_proprietaire)) : ?>
+    <?php if ($details_proprietaire): ?>
         <ul>
-            <li><strong>Nom:</strong> <span id="nom_prop" contenteditable="true"><?php echo $details_proprietaire['nom_prop']; ?></span></li>
-            <li><strong>Prénom:</strong> <span id="prenom_prop" contenteditable="true"><?php echo $details_proprietaire['prenom_prop']; ?></span></li>
-            <li><strong>Adresse:</strong> <span id="adresse_prop" contenteditable="true"><?php echo $details_proprietaire['adresse_prop']; ?></span></li>
-            <li><strong>Code postal:</strong> <span id="cp_prop" contenteditable="true"><?php echo $details_proprietaire['cp_prop']; ?></span></li>
-            <li><strong>Téléphone:</strong> <span id="tel_prop" contenteditable="true"><?php echo $details_proprietaire['tel_prop']; ?></span></li>
-            <li><strong>Login:</strong> <span id="login_prop" contenteditable="true"><?php echo $details_proprietaire['login_prop']; ?></span></li>
+        <li><strong>Nom:</strong> <span id="nom_prop" contenteditable="true"><?php echo $details_proprietaire['nom_prop']; ?></span></li>
+        <li><strong>Prénom:</strong> <span id="prenom_prop" contenteditable="true"><?php echo $details_proprietaire['prenom_prop']; ?></span></li>
+        <li><strong>Adresse:</strong> <span id="adresse_prop" contenteditable="true"><?php echo $details_proprietaire['adresse_prop']; ?></span></li>
+        <li><strong>Code postal:</strong> <span id="cp_prop" contenteditable="true"><?php echo $details_proprietaire['cp_prop']; ?></span></li>
+        <li><strong>Téléphone:</strong> <span id="tel_prop" contenteditable="true"><?php echo $details_proprietaire['tel_prop']; ?></span></li>
         </ul>
         <div class="button-container">
-            <button onclick="modifierProprietaire()">Modifier</button>
+        <button onclick="modifierProprietaire()">Modifier</button>
             <button onclick="supprimerProprietaire()">Supprimer</button>
         </div>
-        <h2>Locataires et Loyers</h2>
-        <?php if (!empty($loyerTotal)) : ?>
-            <?php foreach ($loyerTotal as $loyer) : ?>
-
-                    <div class="appartement-proprio">
-                        <p><strong>Nom du locataire:</strong> <?php echo $loyer['nom_loc'] . ' ' . $loyer['prenom_loc']; ?></p>
-                        <p><strong>Numéro de l'appartement:</strong> <?php echo $loyer['num_appt']; ?></p>
-                        <p><strong>Loyer mensuel payé:</strong> <?php echo $loyer['loyer_total']; ?> euros</p>
-                        <p><strong>Prix du loyer:</strong> <?php echo $loyer['prix_loyer']; ?> euros</p>
-                        <p><strong>Prix des charges:</strong> <?php echo $loyer['prix_charges']; ?> euros</p>
-                    </div>
-
+        <div id="profil" class="cbody">
+        <h2>Locataires</h2>
+        <?php if ($loyerTotal): ?>
+            <?php foreach ($loyerTotal as $locataire): ?>
+                <div>
+                    <h3>Nom du Locataire: <?php echo $locataire['nom_loc'] . ' ' . $locataire['prenom_loc']; ?></h3>
+                    <p>Numéro d'Appartement: <?php echo $locataire['num_appt']; ?></p>
+                    <p>Loyer Total: <?php echo $locataire['loyer_total']; ?> €</p>
+                    <p>Prix du Loyer: <?php echo $locataire['prix_loyer']; ?> €</p>
+                    <p>Prix des Charges: <?php echo $locataire['prix_charges']; ?> €</p>
+                </div>
             <?php endforeach; ?>
-            <h2>Loyer Mensuel Total</h2>
-            <p>Loyer mensuel total pour le propriétaire <?php echo $details_proprietaire['nom_prop'] . ' ' . $details_proprietaire['prenom_prop']; ?>: 
-            <?php 
-            $totalLoyerProprietaire = 0;
-            foreach ($loyerTotal as $loyer) {
-                $totalLoyerProprietaire += $loyer['loyer_total'];
-            }
-            echo $totalLoyerProprietaire; ?> euros</p>
-        <?php else : ?>
-            <p>Aucune information sur les locataires et les loyers n'a été trouvée.</p>
+            <?php
+                // Calcul du total des loyers
+                $totalLoyer = array_sum(array_column($loyerTotal, 'loyer_total'));
+            ?>
+            <div>
+                <h3>Total des Loyers Regroupés:</h3>
+                <p><?php echo $totalLoyer; ?> €</p>
+            </div>
+        <?php else: ?>
+            <p>Aucun locataire trouvé.</p>
         <?php endif; ?>
-    <?php else : ?>
-        <p>Les détails du propriétaire ne sont pas disponibles.</p>
     <?php endif; ?>
-    </div>
-
-
-    <script>
+</div> <!-- Fermeture de la balise div -->
+<script>
         function modifierProprietaire() {
     var nouveauNom = document.getElementById('nom_prop').innerText;
     var nouveauPrenom = document.getElementById('prenom_prop').innerText;
     var nouvelleAdresse = document.getElementById('adresse_prop').innerText;
     var nouveauCodePostal = document.getElementById('cp_prop').innerText;
     var nouveauTelephone = document.getElementById('tel_prop').innerText;
-    var nouveauLogin = document.getElementById('login_prop').innerText;
+    //var nouveauLogin = document.getElementById('login_prop').innerText;
     var num_proprietaire_connecte = <?php echo json_encode($num_proprietaire_connecte); ?>;
     console.log("Nouveau nom : " + nouveauNom);
     console.log("Nouveau prénom : " + nouveauPrenom);
     console.log("Nouveau adresse_prop : " + nouveauCodePostal);
     console.log("Nouveau nouveauCodePostal : " + nouveauCodePostal);
     console.log("Nouveau nouveauTelephone : " + nouveauTelephone);
-    console.log("Nouveau nouveauLogin : " + nouveauLogin);
     console.log("Nouveau num_proprietaire_connecte : " + num_proprietaire_connecte);
 
 // Création d'un objet pour stocker les paramètres à envoyer
@@ -111,9 +104,6 @@ var params = {
     }
     if (nouveauTelephone !== null && nouveauTelephone !== "") {
         params.nouveauTelephone = nouveauTelephone;
-    }
-    if (nouveauLogin !== null && nouveauLogin !== "") {
-        params.nouveauLogin = nouveauLogin;
     }
 
     // Vérifier si des paramètres ont été ajoutés avant d'envoyer la requête AJAX
@@ -149,7 +139,7 @@ xhr.onreadystatechange = function () {
 var jsonData = JSON.stringify(params);
 
 // Ouverture de la requête AJAX et envoi avec le JSON
-xhr.open("GET", "../controleur/controleur_modif_proprio.php?action=modifierProprietaireHandler&jsonData=" + encodeURIComponent(jsonData), true);
+xhr.open("GET", "../controleur/profil_proprietaire.php?action=modifierProprietaireHandler&jsonData=" + encodeURIComponent(jsonData), true);
 xhr.setRequestHeader("Content-Type", "application/json");
 xhr.send(jsonData);
 
@@ -158,3 +148,6 @@ xhr.send(jsonData);
     }
 }
 </script>
+
+</body>
+</html>

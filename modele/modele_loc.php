@@ -102,17 +102,106 @@ class Locataire {
             return null; // Handle exceptions here
         }
     }
-    public function loginExiste($login_loc) {
-        $requete = "SELECT COUNT(*) AS count FROM locataire WHERE login_loc = ?";
-        $statement = $this->maConnexion->prepare($requete);
-        $statement->execute([$login_loc]);
-        $resultat = $statement->fetch(PDO::FETCH_ASSOC);
-        return $resultat['count'] > 0;
-    }
-
-    
-    public function inscription()
+    public function getAppartementsLocataire($login_loc)
     {
+        try {
+            // Sélectionnez les appartements associés au locataire
+            $sql = "SELECT * FROM appartement WHERE num_appt IN (SELECT num_appt FROM locataire WHERE login_loc = :login_loc)";
+            $stmt = $this->maConnexion->prepare($sql);
+            $stmt->bindParam(':login_loc', $login_loc);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            // Créez des objets Appartement à partir des résultats
+            $appartements = [];
+            foreach ($result as $appartementData) {
+                $appartement = new Appartement(
+                    $appartementData['num_appt'],
+                    $appartementData['type_appt'],
+                    $appartementData['prix_loc'],
+                    $appartementData['prix_charge'],
+                    $appartementData['rue'],
+                    $appartementData['arrondisement'],
+                    $appartementData['etage'],
+                    $appartementData['ascenceur'],
+                    $appartementData['preavis'],
+                    $appartementData['date_libre'],
+                    $appartementData['numero_prop']
+                );
+                $appartements[] = $appartement;
+            }
+    
+            return $appartements;
+        } catch (PDOException $e) {
+            // Gérez les exceptions ici (par exemple, en les enregistrant dans un fichier de journal)
+            return null; // Retourne null en cas d'erreur
+        }
+    }
+    public function redirigerAvecErreurs() {
+        $errorString = implode("&", array_map(function($error) {
+            return "error[]=" . urlencode($error);
+        }, $this->errors));
+
+        header("Location: ../vue/formulaire_location.php?" . $errorString);
+        exit();
+    }
+    public function champsCpTelValides() {
+        return preg_match("/^\d+$/", $_POST['tel_loc'])&& preg_match("/^\d+$/", $_POST['cp_banque'])&& preg_match("/^\d+$/", $_POST['tel_banque']);
+    }
+    public function champsNomPrenomValides() {
+        return preg_match("/^[a-zA-ZÀ-ÿ\s]+$/", $_POST['nom_loc']) && preg_match("/^[a-zA-ZÀ-ÿ\s]+$/", $_POST['prenom_loc']);
+    }
+    public function ageMinimumValide($date_nais, $age_minimum = 18) {
+        $date_actuelle = new DateTime();
+        $date_naissance = new DateTime($date_nais);
+        $difference = $date_naissance->diff($date_actuelle);
+        $age = $difference->y; // Récupérer l'âge en années
+    
+        if ($age < $age_minimum) {
+            // Gérer l'erreur pour l'âge insuffisant
+            $this->errors[] = "Vous devez avoir au moins $age_minimum ans pour vous inscrire comme locataire.";
+            return false;
+        }
+        return true;
+    }
+    public function loginExiste($login_loc) {
+        try {
+            $sql = "SELECT COUNT(*) FROM locataire WHERE login_loc = :login_loc";
+            $stmt = $this->maConnexion->prepare($sql);
+            $stmt->bindParam(':login_loc', $login_loc);
+            $stmt->execute();
+            $count = $stmt->fetchColumn();
+    
+            return $count > 0; // Retourne true si le login existe déjà, sinon false
+        } catch (PDOException $e) {
+            // Gérez les exceptions ici (par exemple, en les enregistrant dans un fichier de journal)
+            return true; // Si une exception se produit, considérez que le login existe déjà pour éviter des problèmes potentiels
+        }
+    }
+    
+    public function inscriptionloc()
+    {
+        $this->errors = []; // Assurez-vous de réinitialiser les erreurs à chaque appel
+    
+        if (!$this->champsNomPrenomValides()) {
+            $this->errors[] = "Les champs nom et prénom ne doivent contenir que des lettres et des espaces.";
+        }
+        if ($this->loginExiste($this->login_loc)) {
+            $this->errors[] = "Le login est déjà utilisé.";
+        }
+        if (!$this->champsCpTelValides()) {
+            $this->errors[] = "Les champs telephone et code postale ne doivent contenir que des chiffre et des espaces.";
+        }      
+        if (!$this->ageMinimumValide($this->date_nais)) {
+            $this->errors[] = "Vous devez avoir au moins 18 ans pour vous inscrire comme locataire.";
+        }
+    
+        if (!empty($this->errors)) {
+            // Il y a des erreurs, redirigez avec les erreurs
+            $this->redirigerAvecErreurs($this->errors);
+            return false;
+        }
+    
         try {
             // Hash du mot de passe
             $hashedPassword = password_hash($this->motdepasse_loc, PASSWORD_DEFAULT);
@@ -147,6 +236,7 @@ class Locataire {
         }
     }
     
+    
 public function getDetailslocataireById($num_loc) {
     try {
         $sql = "SELECT * FROM locataire WHERE num_loc = :num_loc";
@@ -160,6 +250,7 @@ public function getDetailslocataireById($num_loc) {
     }
     public function modifierLocataire($num_loc, $nom_loc, $prenom_loc, $date_nais, $tel_loc) {
         try {
+            echo"c'est bon";
             // Votre requête SQL pour la mise à jour ici
             $sql = "UPDATE locataire SET nom_loc = :nom_loc, prenom_loc = :prenom_loc, tel_loc = :tel_loc, date_nais = :date_nais  WHERE num_loc = :num_loc";
             $stmt = $this->maConnexion->prepare($sql);
@@ -210,6 +301,33 @@ public function getAllLocataire() {
         
         // Retournez les demandeurs récupérés
         return $locataire;
+    } catch (PDOException $e) {
+        // Gérez les exceptions ici
+        return false;
+    }
+}
+
+public function modifierLocataireAdmin($num_loc, $nouvellesDonnees) {
+    try {
+        // Votre requête SQL pour la mise à jour ici
+        $sql = "UPDATE locataire SET nom_loc = :nom_loc, prenom_loc = :prenom_loc, tel_loc = :tel_loc, date_nais = :date_nais, num_bancaire = :num_bancaire, nom_banque = :nom_banque, cp_banque = :cp_banque, tel_banque = :tel_banque, login_loc = :login_loc WHERE num_loc = :num_loc";
+        $stmt = $this->maConnexion->prepare($sql);
+        $stmt->bindParam(':nom_loc', $nouvellesDonnees['nom_loc']);
+        $stmt->bindParam(':prenom_loc', $nouvellesDonnees['prenom_loc']);
+        $stmt->bindParam(':tel_loc', $nouvellesDonnees['tel_loc']);
+        $stmt->bindParam(':date_nais', $nouvellesDonnees['date_nais']);
+        $stmt->bindParam(':num_bancaire', $nouvellesDonnees['num_bancaire']);
+        $stmt->bindParam(':nom_banque', $nouvellesDonnees['nom_banque']);
+        $stmt->bindParam(':cp_banque', $nouvellesDonnees['cp_banque']);
+        $stmt->bindParam(':tel_banque', $nouvellesDonnees['tel_banque']);
+        $stmt->bindParam(':login_loc', $nouvellesDonnees['login_loc']);
+        $stmt->bindParam(':num_loc', $num_loc);
+
+        // Exécution de la requête
+        $stmt->execute();
+
+        // Vérifiez si la mise à jour a réussi
+        return $stmt->rowCount() > 0;
     } catch (PDOException $e) {
         // Gérez les exceptions ici
         return false;

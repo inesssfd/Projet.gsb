@@ -5,166 +5,129 @@ if (session_status() == PHP_SESSION_NONE) {
 include_once '../modele/modele_demande.php';
 include_once '../modele/modele_proprietaire.php';
 include_once '../modele/modele_app.php';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Si le formulaire d'inscription est soumis
-    if (isset($_POST['action']) && $_POST['action'] === 'inscription') {
-        inscription();
-    }
-    // Si le formulaire de connexion est soumis
-    elseif (isset($_POST['action']) && $_POST['action'] === 'connexion') {
-        connexion();
-    }
-    // Si le formulaire de suppression est soumis
-    elseif (isset($_POST['action']) && $_POST['action'] === 'supprimerProprietaireConnecte') {
-        supprimerProprietaireConnecte();
-    }
-else {
-    // Si aucune action de formulaire n'est spécifiée, récupérez le loyer total par propriétaire
-    recupererLoyerTotal();
-}
-}
-function getAllAppartementsByProprietaire($numero_prop) {
-    try {
-        // Appeler la méthode statique de la classe Appartement pour récupérer les appartements du propriétaire
-        return Appartement::getAllAppartementsByProprietaire($numero_prop);
-    } catch (PDOException $e) {
-        // Gérer les exceptions PDO ici (par exemple, en les enregistrant dans un fichier journal)
-        return false;
-    }
-}
-
-function getDemandesByAppartement($num_appt) {
-    try {
-        // Appeler la méthode statique de la classe Demande pour récupérer les demandes de l'appartement spécifié
-        return Demande::getDemandesByAppartement($num_appt);
-    } catch (PDOException $e) {
-        // Gérer les exceptions PDO ici (par exemple, en les enregistrant dans un fichier journal)
-        return [];
-    }
-}
-
-function getDetailsProprietaire() {
-    $proprietaire = new Proprietaire();
-    if (isset($_SESSION['numero_prop'])) {
-        $numero_prop = $_SESSION['numero_prop'];
-        return $proprietaire->getDetailsProprietaireById($numero_prop);
-    }
-    return [];
-}
-
-function inscription() {
-    $errors = [];
-    $proprietaire = new Proprietaire();
-
-    if ($proprietaire->loginExiste($_POST['login_prop'])) {
-        $errors[] = "Ce login est déjà utilisé. Veuillez choisir un autre login.";
-        redirigerAvecErreurs($errors);
-        return;
-    }
-
-    // Vérifier les champs vides
-    if (champsVides()) {
-        $errors[] = "Tous les champs doivent être remplis.";
-    }
-    // Vérifier les champs nom_prop et prenom_prop
-    if (!champsNomPrenomValides()) {
-        $errors[] = "Les champs nom et prénom ne doivent contenir que des lettres et des espaces.";
-    }
-    // Vérifier les champs cp_prop et tel_prop
-    if (!champsCpTelValides()) {
-        $errors[] = "Les champs code postal et téléphone ne doivent contenir que des chiffres.";
-    }
-    // Si des erreurs sont présentes, afficher les erreurs
-    if (!empty($errors)) {
-        redirigerAvecErreurs($errors);
-    } else {
-        // Si aucune erreur, procéder au traitement de l'inscription
-        $proprietaire = new Proprietaire(
-            $_POST['nom_prop'],
-            $_POST['prenom_prop'],
-            $_POST['adresse_prop'],
-            $_POST['cp_prop'],
-            $_POST['tel_prop'],
-            $_POST['login_prop'],
-            $_POST['motdepasse_pro']
-        );
-
-        if ($proprietaire->inscription()) {
-            $_SESSION['login_prop'] = $proprietaire->getLoginProp();
-            $_SESSION['numero_prop'] = $proprietaire->getNumeroProp();
-            $confirmation = "Inscription réussie!";
-            redirigerVersAccueilPro();
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
+    // Vérifier si l'action est "supprimerProprietaireConnecte"
+    if ($_POST['action'] === 'supprimerProprietaireConnecte') {
+        // Vérifier si le numéro du propriétaire est défini dans la session
+        if (isset($_SESSION['numero_prop'])) {
+            $numero_prop = $_SESSION['numero_prop'];
+            
+            try {
+                // Appeler la méthode pour supprimer le propriétaire
+                $result = Proprietaire::supprimerProprietaire($numero_prop);
+                // Afficher le résultat de l'opération
+                echo $result ? "success" : "Erreur: Impossible de supprimer le propriétaire.";
+            } catch (Exception $e) {
+                echo "Erreur: " . $e->getMessage();
+            }
         } else {
-            $confirmation = "Erreur lors de l'inscription du propriétaire.";
-        }
-    }
-}
+            echo "Erreur: Numéro de propriétaire non spécifié dans la session.";
+        }}}
 
-function connexion() {
+// Vérifiez si le formulaire a été soumis et si l'action est "inscription"
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] == 'inscription') {
+    // Créez une instance de la classe Proprietaire
+    $proprietaire = new Proprietaire();
+    
+    // Récupérez les valeurs des champs du formulaire
+    $nom_prop = $_POST['nom_prop'];
+    $prenom_prop = $_POST['prenom_prop'];
+    $adresse_prop = $_POST['adresse_prop'];
+    $cp_prop = $_POST['cp_prop'];
+    $tel_prop = $_POST['tel_prop'];
     $login_prop = $_POST['login_prop'];
     $motdepasse_pro = $_POST['motdepasse_pro'];
-    $proprietaire = new Proprietaire();
-
-    if ($proprietaire->connexion_prop($login_prop, $motdepasse_pro)) {
+    
+    // Définissez les valeurs des propriétés du propriétaire
+    $proprietaire->setNomProp($nom_prop);
+    $proprietaire->setPrenomProp($prenom_prop);
+    $proprietaire->setAdresseProp($adresse_prop);
+    $proprietaire->setCpProp($cp_prop);
+    $proprietaire->setTelProp($tel_prop);
+    $proprietaire->setLoginProp($login_prop);
+    $proprietaire->setMotdepassePro($motdepasse_pro);
+    
+    // Appelez la méthode inscription
+    $inscriptionResult = $proprietaire->inscription();
+    
+    // Vérifiez si l'inscription a réussi
+    if ($inscriptionResult) {
+        // Obtenez le numéro du propriétaire nouvellement inscrit
         $numero_prop = $proprietaire->getNumeroProp();
-        $_SESSION['login_prop'] = $login_prop;
-        $_SESSION['numero_prop'] = $numero_prop; // Stockez le numéro du propriétaire dans la session
+        
+        // Démarrez la session pour le nouveau propriétaire
+        demarrerSession($login_prop, $numero_prop);
+        
+        // Redirigez l'utilisateur vers la page d'accueil appropriée
         redirigerVersAccueilPro();
     } else {
-        $errors[] = "Échec de l'authentification. Vérifiez vos informations de connexion.";
-        redirigerAvecErreurs($errors);
+        // En cas d'échec de l'inscription, redirigez avec les erreurs
+        $proprietaire->redirigerAvecErreurs();
     }
 }
 
-function supprimerProprietaireConnecte() {
-    if (isset($_SESSION['numero_prop'])) {
-        $numero_prop = $_SESSION['numero_prop'];
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['action']) && $_POST['action'] == 'connexion') {
+        $login_prop = $_POST['login_prop'];
+        $motdepasse_pro = $_POST['motdepasse_pro'];
+
         $proprietaire = new Proprietaire();
-        $success = $proprietaire->supprimerProprietaire($numero_prop);
-        if ($success) {
-            session_destroy();
-            echo 'success';
-            exit;
+        $numero_prop = $proprietaire->connexion_prop($login_prop, $motdepasse_pro);
+
+        if ($numero_prop) {
+            // Les identifiants sont corrects, démarrer la session et rediriger
+            $_SESSION['numero_prop'] = $numero_prop;
+            demarrerSession($_POST['login_prop'], $numero_prop);
+            redirigerVersAccueilPro();
         } else {
-            echo 'error';
-            exit;
+            // Identifiants incorrects, afficher un message d'erreur
+            echo "Identifiants incorrects. Veuillez réessayer.";
+            // Vous pouvez également rediriger vers une page de connexion avec un message d'erreur
+            header("Location: ../vue/vue_connexion_proprietaire.php?erreur=identifiants_invalides");
+            // exit();
         }
     }
 }
+
+
+function demarrerSession($login_prop, $numero_prop) {
+    $_SESSION['login_prop'] = $login_prop;
+    $_SESSION['numero_prop'] = $numero_prop;
+    // Rediriger vers la page d'accueil du demandeur avec le numéro du demandeur dans l'URL
+    header('Location: ../vue/v_acceuil_pro.php?login_prop=' . $login_prop);
+    exit();
+}
+
 
 function redirigerVersAccueilPro() {
     header('Location: ../vue/v_acceuil_pro.php');
     exit();
 }
 
-function recupererLoyerTotal() {
-    $proprietaire = new Proprietaire();
-    if (isset($_SESSION['numero_prop'])) {
-        $numero_prop = $_SESSION['numero_prop'];
-        return $proprietaire->getLoyerTotalParProprietaire($numero_prop);
+
+
+
+$appartements = [];
+$demandes_par_appartement = [];
+
+// Vérification de la session et récupération des données des appartements et des demandes associées
+if (isset($_SESSION['numero_prop'])) {
+    $numero_prop = $_SESSION['numero_prop'];
+    $appartements = Appartement::getAllAppartementsByProprietaire($numero_prop);
+
+    // Tableau pour stocker les demandes associées à chaque appartement
+    $demandes_par_appartement = [];
+
+    foreach ($appartements as $appartement) {
+        // Récupérer les demandes associées à cet appartement
+        $demandes_par_appartement[$appartement['num_appt']] = Demande::getDemandesByAppartement($appartement['num_appt']);
     }
-    return null;
+} else {
+    header("Location: ../index.php");
+    exit;
 }
 
-function champsVides() {
-    return empty($_POST['nom_prop']) || empty($_POST['prenom_prop']) || empty($_POST['adresse_prop']) || empty($_POST['cp_prop']) || empty($_POST['tel_prop']) || empty($_POST['login_prop']) || empty($_POST['motdepasse_pro']);
-}
-
-function champsNomPrenomValides() {
-    return preg_match("/^[a-zA-ZÀ-ÿ\s]+$/", $_POST['nom_prop']) && preg_match("/^[a-zA-ZÀ-ÿ\s]+$/", $_POST['prenom_prop']);
-}
-
-function champsCpTelValides() {
-    return preg_match("/^\d+$/", $_POST['cp_prop']) && preg_match("/^\d+$/", $_POST['tel_prop']);
-}
-
-function redirigerAvecErreurs($errors) {
-    $errorString = implode("&", array_map(function($error) {
-        return "error[]=" . urlencode($error);
-    }, $errors));
-
-    header("Location: ../vue/vue_inscription_proprietaire.php?" . $errorString);
-    exit();
-}
-
+// Inclusion de la vue et envoi des données
+include_once '../vue/v_acceuil_pro.php';
 ?>

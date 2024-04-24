@@ -10,6 +10,7 @@
 <div class="container">
         <div class="form-container">
 <form method='POST' action='../controleur/controleur_demandeurs.php' name='annuaire' enctype='application/x-www-form-urlencoded'>
+<input type="hidden" name="action" value="connexion_demandeur">
     <h1>Connexion</h1>
     <div class="input-wrapper">
     <label for="login">login: </label>
@@ -20,7 +21,7 @@
     <input type='password' name='motdepasse_demandeur' size='20' value='' class='password-input'>
   </div>
 <div class="input-wrapper">
-<td colspan="2"><input type='submit' name='action' value='connexion' class='btn-connexion'>
+<td colspan="2"><input type='submit'class='btn-connexion'>
   </div>
 <div class="input-wrapper">
   <td colspan="2"><a href="../vue/vue_inscription_demandeur.php">Vous n'avez pas de compte ? </a>

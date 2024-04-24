@@ -137,7 +137,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .custom-pro {
-    background-color: #071982;
+    background-color:transparent;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -391,13 +391,7 @@ header p {
 }
 /* Style pour le bouton "Rechercher" */
 .search-button {
-    background-color: #007bff; /* Couleur de fond */
-    color: #ffffff; /* Couleur du texte */
-    padding: 10px 20px; /* Espacement intérieur */
-    border: none; /* Supprimer la bordure */
-    border-radius: 5px; /* Arrondi des bords */
-    cursor: pointer; /* Curseur au survol */
-    transition: background-color 0.3s ease; /* Animation de transition */
+    background-color: transparent; /* Fond transparent */
 }
 
 /* Ajout d'une icône de loupe */
@@ -408,13 +402,7 @@ header p {
 
 /* Changement de couleur de fond au survol */
 .search-button:hover {
-    background-color: #0056b3;
-}
-
-
-/* Changement de couleur de fond au survol */
-.search-button:hover {
-    background-color: #0056b3;
+    background-color: transparent; 
 }
 .search-form select {
     /* Définissez la taille de la police et la couleur */

@@ -5,114 +5,10 @@ include_once '../modele/modele_visite.php';
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
-$demandeurs = new demandeurs();
 $errors = [];
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Si le formulaire d'inscription est soumis
-    if (isset($_POST['action']) && $_POST['action'] === 'inscription') {
-        inscription($demandeurs, $errors);
-    }
-    // Si le formulaire de connexion est soumis
-    elseif (isset($_POST['action']) && $_POST['action'] === 'connexion') {
-        connexion($demandeurs, $errors);
-    }
-}
-// Si une action est spécifiée dans l'URL
-elseif (isset($_GET['action'])) {
-    $action = $_GET['action'];
-    // Vérifier si l'action est pour afficher les informations du demandeur
-    if ($action === 'afficher_infos_demandeur' && isset($_GET['num_demandeur'])) {
-        afficherInfosDemandeur($_GET['num_demandeur'], $demandeurs);
-    }
-}
-function getVisitesByDemandeur($num_demandeur) {
-    try {
-        $visite = new Visite(); // Créer une instance de la classe Visite
-        return $visite->getVisitesByDemandeur($num_demandeur);
-    } catch (PDOException $e) {
-        // Gérer les erreurs PDO si nécessaire
-        echo "Erreur PDO : " . $e->getMessage();
-        return false;
-    }
-}
-
-function afficherInfosDemandeur($numDemandeur, $demandeurs) {
-    // Récupérer les informations du demandeur
-    $demandeur = new Demandeurs();
-    $infosDemandeur = $demandeurs->getDemandeurById($numDemandeur);
-
-    // Formattez les informations du demandeur pour l'affichage
-    $infosFormatees = "Nom : " . $infosDemandeur['nom_demandeur'] . "\n";
-    $infosFormatees .= "Prénom : " . $infosDemandeur['prenom_demandeur'] . "\n";
-    $infosFormatees .= "Adresse : " . $infosDemandeur['adresse_demandeur'] . "\n";
-    $infosFormatees .= "Code postal : " . $infosDemandeur['cp_demandeur'] . "\n";
-    $infosFormatees .= "Téléphone : " . $infosDemandeur['tel_demandeur'] . "\n";
-    $infosFormatees .= "Login : " . $infosDemandeur['login'] . "\n";
-
-    // Afficher les informations du demandeur
-    echo $infosFormatees;
-}
-
-function inscription($demandeurs, &$errors) {
-    if ($demandeurs->loginExiste($_POST['login'])) {
-        $errors[] = "Ce login est déjà utilisé. Veuillez choisir un autre login.";
-        redirigerAvecErreurs($errors);
-        return;
-    }
-    // Vérifier les champs vides
-    if (champsVides($_POST)) {
-        $errors[] = "Tous les champs doivent être remplis.";
-    }
-    // Vérifier les champs nom_demandeur et prenom_demandeur
-    if (!champsNomPrenomValides($_POST)) {
-        $errors[] = "Les champs nom et prénom ne doivent contenir que des lettres et des espaces.";
-    }
-    // Vérifier les champs cp_demandeur et tel_demandeur
-    if (!champsCpTelValides($_POST)) {
-        $errors[] = "Les champs code postal et téléphone ne doivent contenir que des chiffres.";
-    }
-
-    // Si des erreurs sont présentes, rediriger vers le formulaire avec les erreurs
-    if (!empty($errors)) {
-        redirigerAvecErreurs($errors);
-    } else {
-        // Procéder au traitement de l'inscription
-        $demandeur = new demandeurs(
-            $_POST['nom_demandeur'],
-            $_POST['prenom_demandeur'],
-            $_POST['adresse_demandeur'],
-            $_POST['cp_demandeur'],
-            $_POST['tel_demandeur'],
-            $_POST['login'],
-            $_POST['motdepasse_demandeur']
-        );
-
-        if ($demandeur->inscription()) {
-            demarrerSession($demandeur->getlogin(), $demandeur->getnum_demandeur());
-            redirigerVersAccueilDemandeur();
-        } else {
-            $errors[] = "Erreur lors de l'inscription du demandeur.";
-            redirigerAvecErreurs($errors);
-        }
-    }
-}
-
-function connexion($demandeurs, &$errors) {
-    $login = $_POST['login'];
-    $motdepasse_demandeur = $_POST['motdepasse_demandeur'];
-    $num_demandeur = $demandeurs->connexion($login, $motdepasse_demandeur);
-
-    if ($num_demandeur) {
-        // La connexion a réussi, démarrer la session et rediriger vers l'accueil
-        demarrerSession($login, $num_demandeur);
-        redirigerVersAccueilDemandeur();
-    } else {
-        // Sinon, afficher un message d'erreur et rediriger vers la page de connexion
-        $errors[] = "Échec de l'authentification. Vérifiez vos informations de connexion.";
-        redirigerAvecErreurs($errors);
-    }
+// Vérifier si l'utilisateur est déjà connecté
+if(isset($_SESSION['num_demandeur'])) {
+    redirigerVersAccueilDemandeur();
 }
 
 function demarrerSession($login, $num_demandeur) {
@@ -128,24 +24,78 @@ function redirigerVersAccueilDemandeur() {
     exit();
 }
 
-function champsVides($postData) {
-    return empty($postData['nom_demandeur']) || empty($postData['prenom_demandeur']) || empty($postData['adresse_demandeur']) || empty($postData['cp_demandeur']) || empty($postData['tel_demandeur']) || empty($postData['login']) || empty($postData['motdepasse_demandeur']);
-}
 
-function champsNomPrenomValides($postData) {
-    return preg_match("/^[a-zA-ZÀ-ÿ\s]+$/", $postData['nom_demandeur']) && preg_match("/^[a-zA-ZÀ-ÿ\s]+$/", $postData['prenom_demandeur']);
-}
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['action']) && $_POST['action'] == 'inscription') {
+    // Initialiser un tableau pour stocker les éventuelles erreurs
+    $errors = [];
 
-function champsCpTelValides($postData) {
-    return preg_match("/^\d+$/", $postData['cp_demandeur']) && preg_match("/^\d+$/", $postData['tel_demandeur']);
-}
+    // Vérifier que tous les champs requis sont renseignés
+    $required_fields = ['nom_demandeur', 'prenom_demandeur', 'adresse_demandeur', 'cp_demandeur', 'tel_demandeur', 'login', 'motdepasse_demandeur'];
+    foreach ($required_fields as $field) {
+        if (empty($_POST[$field])) {
+            $errors[] = "Le champ $field est requis.";
+        }
+    }
 
+    // Si aucun erreur, procéder à l'inscription
+    if (empty($errors)) {
+        // Créer une nouvelle instance de la classe demandeurs (ou utiliser celle déjà créée)
+        $demandeur = new demandeurs();
+        $demandeur->setnom_demandeur($_POST['nom_demandeur']);
+        $demandeur->setprenom_demandeur($_POST['prenom_demandeur']);
+        $demandeur->setadresse_demandeur($_POST['adresse_demandeur']);
+        $demandeur->setcp_demandeur($_POST['cp_demandeur']);
+        $demandeur->settel_demandeur($_POST['tel_demandeur']);
+        $demandeur->setlogin($_POST['login']);
+        $demandeur->setmotdepasse_demandeur($_POST['motdepasse_demandeur']);
+        if ($demandeur->inscription()) {
+            $num_demandeur = $demandeur->getLastInsertId(); // Récupérer le dernier ID inséré
+            demarrerSession($_POST['login'], $num_demandeur);
+            redirigerVersAccueilDemandeur();
+        } else {
+            // En cas d'échec de l'inscription, redirigez avec les erreurs
+            $demandeur->redirigerAvecErreurs($demandeur->errors); // Passer le tableau d'erreurs comme argument
+        }
+    }
+} elseif (isset($_POST['action']) && $_POST['action'] == 'connexion_demandeur') {
+    // Tenter de se connecter
+    if (empty($_POST['login']) || empty($_POST['motdepasse_demandeur'])) {
+        $errors[] = "Le login et le mot de passe sont requis.";
+        redirigerAvecErreurs($errors);
+    } else {
+        // Créer une instance de la classe demandeurs
+        $demandeurs = new demandeurs();
+        $num_demandeur = $demandeurs->connexion($_POST['login'], $_POST['motdepasse_demandeur']);
+        if ($num_demandeur) {
+            // Stocker num_demandeur dans la session
+            $_SESSION['num_demandeur'] = $num_demandeur;
+            // Rediriger vers la page d'accueil
+            demarrerSession($_POST['login'], $num_demandeur);
+            redirigerVersAccueilDemandeur();
+
+        } else {
+            // Échec de l'authentification, rediriger avec un message d'erreur
+            $errors[] = "Login ou mot de passe incorrect.";
+            redirigerAvecErreurs($errors);
+        }
+    }
+
+    } else {
+        // Rediriger vers la page de connexion si aucune action POST appropriée n'est effectuée
+        header('Location: ../vue/vue_connexion_demandeur.php');
+        exit();
+    }
+}
 function redirigerAvecErreurs($errors) {
+    // Construire la chaîne de requête avec les erreurs
     $errorString = implode("&", array_map(function($error) {
         return "error[]=" . urlencode($error);
     }, $errors));
 
+    // Utiliser la chaîne de requête avec les erreurs dans la redirection
     header("Location: ../vue/vue_inscription_demandeur.php?" . $errorString);
     exit();
 }
+
 ?>

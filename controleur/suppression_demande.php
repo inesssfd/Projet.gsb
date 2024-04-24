@@ -1,35 +1,24 @@
 <?php
-session_start();
+include_once '../modele/modele_demande.php'; // Inclure la classe de demande
 
-// Inclure la classe de demande et autres fichiers nécessaires
-include_once '..\controleur\param_connexion.php';
-include_once '../modele/modele_demande.php';
-
-
-// Vérifier si la méthode HTTP est POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_demandes_location'])) {
+// Vérifier si l'ID de la demande a été envoyé via POST
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["id_demandes_location"])) {
     // Récupérer l'ID de la demande à supprimer depuis le formulaire
-    $id_demandes_location = $_POST['id_demandes_location'];
+    $id_demandes_location = $_POST["id_demandes_location"];
 
-    // Supprimer la demande de la base de données
-    if (supprimerDemande($id_demandes_location)) {
-        echo "La demande a été supprimée avec succès.";
+    // Appeler la méthode statique pour supprimer la demande
+    $suppression_reussie = Demande::supprimeDemande($id_demandes_location);
+
+    // Vérifier si la suppression a réussi
+    if ($suppression_reussie) {
+        // Retourner une réponse JSON indiquant le succès de la suppression
+        echo json_encode(array("success" => true, "message" => "La demande a été supprimée avec succès."));
     } else {
-        echo "Une erreur s'est produite lors de la suppression de la demande.";
+        // Retourner une réponse JSON indiquant l'échec de la suppression
+        echo json_encode(array("success" => false, "message" => "La demande n'a pas pu être supprimée."));
     }
-}
-
-// Fonction pour supprimer une demande
-function supprimerDemande($id_demandes_location) {
-    try {
-        // Créer une instance de la classe Demande
-        $demande = new demande();
-        
-        // Appeler la méthode pour supprimer la demande
-        return $demande->supprimeDemande($id_demandes_location);
-    } catch (PDOException $e) {
-        // Gérer les exceptions PDO ici (par exemple, en les enregistrant dans un fichier journal)
-        return false;
-    }
+} else {
+    // Si aucune demande n'a été envoyée via POST, retourner une erreur JSON
+    echo json_encode(array("success" => false, "message" => "Aucune demande à supprimer."));
 }
 ?>

@@ -1,35 +1,16 @@
 <?php
-// Vérification de session
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 if (!isset($_SESSION['num_demandeur']) && !isset($_SESSION['numero_prop'])) {
-    // Redirection vers la page de connexion
     header("Location: ../index.php");
     exit;
 }
+// Récupérer le numéro du demandeur connecté depuis la session
+$num_demandeur_connecte = isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : null;
+
+
 include_once '../controleur/controleur_app.php';
-
-// Récupérer la liste des appartements
-$appartements = getAppartementsSansLocataireEtDateLibrePasse();
-if (isset($_GET['action']) && $_GET['action'] === 'rechercherAppartements') {
-    // Récupérer les valeurs des champs de recherche
-    $type_appt = isset($_GET['type_appt']) ? $_GET['type_appt'] : null;
-    $arrondisement = isset($_GET['arrondisement']) ? $_GET['arrondisement'] : null;
-    $prix_loc = isset($_GET['prix_loc']) ? $_GET['prix_loc'] : null;
-
-    // Appeler la méthode rechercherAppartements avec les valeurs de recherche
-    $appartements_demandeur = Appartement::rechercherAppartements($arrondisement, $prix_loc, $type_appt);
-
-    // Traiter les résultats de la recherche
-    if ($appartements_demandeur !== false) {
-        // La recherche a réussi, traitez les résultats ici
-    } else {
-        $appartements = getAppartementsSansLocataireEtDateLibrePasse();
-    }
-}
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -43,9 +24,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'rechercherAppartements') {
     
 <nav>
     <ul>
-        <li><a href="v_acceuil_demandeur.php">Accueil</a></li>
-        <li><a href="appartement_loué.php">Visites et profil du demandeur</a></li>
-        <div>Bienvenue, <?php echo (isset($_SESSION['login']) ? $_SESSION['login'] : 'Invité'); ?> (Numéro Demandeur: <?php echo isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : 'N/A'; ?>) | <a href="../modele/deconnexion.php">Déconnexion</a></div>
+    <li><a href="v_acceuil_demandeur.php"><img src="../style/loger.png" alt="Accueil" style="width: 30px; height: 30px;"></a></li>
+    <li><a href="appartement_loué.php?num_demandeur=<?php echo $num_demandeur_connecte; ?>"><img src="../style/profil.png" alt="Profil" style="width: 30px; height: 30px;"></a></li>
+
+
+        <div>Bienvenue, <?php echo (isset($_SESSION['num_demandeur']) ? $_SESSION['login'] : 'Invité'); ?> (Numéro Demandeur: <?php echo isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : 'N/A'; ?>) | <a href="../modele/deconnexion.php">Déconnexion</a></div>
 
         <li>
         <form method="GET" action="v_acceuil_demandeur.php" class="search-form">
@@ -97,7 +80,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'rechercherAppartements') {
     <label for="prix_loc">Prix maximum :</label>
     <input type="text" name="prix_loc" id="prix_loc" class="search-form">
     <input type="hidden" name="action" value="rechercherAppartements">
-    <input type="submit" value="Rechercher" class="search-button">
+    <input type="image" src="../style/loupe.png" alt="Rechercher" class="search-button" style="width: 20px; height: 20px;">
+
 
 
 </form>

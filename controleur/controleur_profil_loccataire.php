@@ -10,6 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    echo"c'est bon";
     // Récupérer les données postées
     $nom_loc = $_POST['nom_loc'];
     $prenom_loc = $_POST['prenom_loc'];

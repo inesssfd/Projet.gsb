@@ -25,7 +25,7 @@
 <td colspan="2"><input type='submit' name='action' value='connexion' class='btn-connexion'>
   </div>
 <div class="input-wrapper">
-  <td colspan="2"><a href="../vue/vue_inscription.php">Vous n'avez pas de compte ? </a>
+  <td colspan="2"><a href="../vue/vue_inscription_proprietaire.php">Vous n'avez pas de compte ? </a>
   </div>
 
 </form>

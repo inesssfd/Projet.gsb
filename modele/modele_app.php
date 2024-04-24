@@ -33,7 +33,50 @@ class Appartement {
         $connexionDB = new ConnexionDB();
         $this->maConnexion = $connexionDB->get_connexion();
     }
-
+    public function setNumAppt($num_appt) {
+        $this->num_appt = $num_appt;
+    }
+    
+    public function setTypeAppt($type_appt) {
+        $this->type_appt = $type_appt;
+    }
+    
+    public function setPrixLoc($prix_loc) {
+        $this->prix_loc = $prix_loc;
+    }
+    
+    public function setPrixCharge($prix_charge) {
+        $this->prix_charge = $prix_charge;
+    }
+    
+    public function setRue($rue) {
+        $this->rue = $rue;
+    }
+    
+    public function setArrondisement($arrondisement) {
+        $this->arrondisement = $arrondisement;
+    }
+    
+    public function setEtage($etage) {
+        $this->etage = $etage;
+    }
+    
+    public function setAscenceur($ascenceur) {
+        $this->ascenceur = $ascenceur;
+    }
+    
+    public function setPreavis($preavis) {
+        $this->preavis = $preavis;
+    }
+    
+    public function setDateLibre($date_libre) {
+        $this->date_libre = $date_libre;
+    }
+    
+    public function setNumeroProp($numero_prop) {
+        $this->numero_prop = $numero_prop;
+    }
+    
     // Getter and setter methods for each property
     public function getNumAppt() {
         return $this->num_appt;
@@ -79,11 +122,33 @@ class Appartement {
         return $this->numero_prop;
     }
 
-    public function setNumAppt($num_appt) {
-        $this->num_appt = $num_appt;}
-
+  public  function champ_prix() {
+        return preg_match("/^\d+$/", $_POST['prix_loc']) && preg_match("/^\d+$/", $_POST['prix_charge'])&& preg_match("/^\d+$/", $_POST['etage']);
+    }
+    
+    public function champs_non_vide()
+{
+    // Vérifie chaque attribut de la classe s'il est vide
+    if (empty($this->type_appt) || empty($this->prix_loc) || empty($this->prix_charge) || empty($this->rue) || empty($this->arrondisement) || empty($this->etage) || empty($this->preavis) || empty($this->date_libre) || empty($this->numero_prop)) {
+        return false; // Il y a des champs vides
+    } else {
+        return true; // Tous les champs sont remplis
+    }
+}
         public function ajouterAppartement()
         {
+            if (!$this->champs_non_vide()) {
+                // Redirection vers une page d'erreur avec un message approprié
+                $_SESSION['confirmation'] = "Erreur lors de l'ajout de l'appartement : Tous les champs doivent être remplis.";
+                header('Location: ../vue/ajouter_logement.php'); // Redirection vers la page d'ajout d'appartement
+                exit();
+            }
+            if (!$this->champ_prix()) {
+                // Redirection vers une page d'erreur avec un message approprié
+                $_SESSION['confirmation'] = "Erreur lors de l'ajout de l'appartement : Les champs de prix doivent être des nombres entiers.";
+                header('Location: ../vue/ajouter_logement.php'); // Redirection vers la page d'ajout d'appartement
+                exit();
+            }
             // Requête SQL d'insertion
             $sql = "INSERT INTO appartement (type_appt, prix_loc, prix_charge, rue, arrondisement, etage, ascenceur, preavis, date_libre, numero_prop) 
                     VALUES (:type_appt, :prix_loc, :prix_charge, :rue, :arrondisement, :etage, :ascenceur, :preavis, :date_libre, :numero_prop)";
@@ -125,7 +190,7 @@ class Appartement {
 
     
     public static function supprimerAppartement($num_appt) {
-        error_log("Fonction supprimerAppartement appelée pour num_appt=" . $num_appt);
+        echo("Fonction supprimerAppartement appelée pour num_appt=" . $num_appt);
         $connexionDB = new ConnexionDB();
         $pdo = $connexionDB->get_connexion();
         echo "Numéro de l'appartement à supprimer : " . $num_appt;
@@ -261,18 +326,38 @@ class Appartement {
             return false;
         }
     }
-    public static function getAppartementsSansLocataireEtDateLibrePasse() {
+    public static function getAppartementsSansLocataireEtDateLibrePasse($type_appt = null, $arrondisement = null, $prix_max = null){
         try {
             $connexionDB = new ConnexionDB();
             $maConnexion = $connexionDB->get_connexion();
             
             // Sélectionnez les appartements sans locataire et avec une date libre déjà passée
             $sql = "SELECT * FROM appartement WHERE num_appt NOT IN (SELECT num_appt FROM locataire) AND date_libre <= CURDATE()";
+            if ($type_appt !== null) {
+                $sql .= " AND type_appt = :type_appt";
+            }
+            if ($arrondisement !== null) {
+                $sql .= " AND arrondisement = :arrondisement";
+            }
+            if ($prix_max !== null) {
+                $sql .= " AND prix_loc <= :prix_max";
+            }
+    
             $stmt = $maConnexion->prepare($sql);
+    
+            // Liaison des valeurs des paramètres optionnels
+            if ($type_appt !== null) {
+                $stmt->bindParam(':type_appt', $type_appt);
+            }
+            if ($arrondisement !== null) {
+                $stmt->bindParam(':arrondisement', $arrondisement);
+            }
+            if ($prix_max !== null) {
+                $stmt->bindParam(':prix_max', $prix_max);
+            }
+    
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // Créez des objets Appartement à partir des résultats
             $appartements = [];
             foreach ($result as $appartementData) {
                 $appartement = new Appartement(
@@ -290,6 +375,9 @@ class Appartement {
                 );
                 $appartements[] = $appartement;
             }
+    
+            // La date libre est déjà vérifiée dans la requête SQL, donc pas besoin de la vérifier ici
+            // Pas besoin de filtrer les dates ici
     
             // Retournez le tableau d'objets Appartement
             return $appartements;
@@ -300,44 +388,6 @@ class Appartement {
     }
     
     
-
-    public static function getAppartementsDisponiblesAPartirDe($date_recherche) {
-        $connexionDB = new ConnexionDB();
-        $maConnexion = $connexionDB->get_connexion();
-        
-        try {
-            // Sélectionnez les appartements avec une date libre supérieure ou égale à la date de recherche
-            $sql = "SELECT * FROM appartement WHERE date_libre >= :date_recherche";
-            $stmt = $maConnexion->prepare($sql);
-            $stmt->bindParam(':date_recherche', $date_recherche);
-            $stmt->execute();
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // Créez des objets Appartement à partir des résultats
-            $appartements = [];
-            foreach ($result as $appartementData) {
-                $appartement = new Appartement(
-                    $appartementData['num_appt'],
-                    $appartementData['type_appt'],
-                    $appartementData['prix_loc'],
-                    $appartementData['prix_charge'],
-                    $appartementData['rue'],
-                    $appartementData['arrondisement'],
-                    $appartementData['etage'],
-                    $appartementData['ascenceur'],
-                    $appartementData['preavis'],
-                    $appartementData['date_libre'],
-                    $appartementData['numero_prop']
-                );
-                $appartements[] = $appartement;
-            }
-    
-            return $appartements;
-        } catch (PDOException $e) {
-            // Gérez les exceptions ici (par exemple, en les enregistrant dans un fichier de journal)
-            return false;
-        }
-    }
     public function getAllAppartement() {
         try {
             $connexionDB = new ConnexionDB();

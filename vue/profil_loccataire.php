@@ -21,6 +21,7 @@ $detailsLocataire = $locataire->getDetailslocataireById($num_loc);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../style/style_appartement.css">
+    <script src="../style/locataire.js" defer></script>
 
     <script src="../style/script.js" defer></script>
     <title>Profil du Locataire</title>
@@ -48,12 +49,12 @@ $detailsLocataire = $locataire->getDetailslocataireById($num_loc);
         <p>Prénom: <span id="prenom_loc" contenteditable="true"><?php echo $detailsLocataire['prenom_loc']; ?></span></p>
         <p>Date de Naissance: <span id="date_nais" contenteditable="true"><?php echo $detailsLocataire['date_nais']; ?></span></p>
         <p>Téléphone: <span id="tel_loc" contenteditable="true"><?php echo $detailsLocataire['tel_loc']; ?></span></p>
-        <p>Numéro Bancaire: <span id="num_bancaire" contenteditable="true"><?php echo $detailsLocataire['num_bancaire']; ?></span></p>
-        <p>Nom de la Banque: <span id="nom_banque" contenteditable="true"><?php echo $detailsLocataire['nom_banque']; ?></span></p>
-        <p>Code Postal de la Banque: <span id="cp_banque" contenteditable="true"><?php echo $detailsLocataire['cp_banque']; ?></span></p>
-        <p>Téléphone de la Banque: <span id="tel_banque" contenteditable="true"><?php echo $detailsLocataire['tel_banque']; ?></span></p>
+        <p>Numéro Bancaire: <span id="num_bancaire" ><?php echo $detailsLocataire['num_bancaire']; ?></span></p>
+        <p>Nom de la Banque: <span id="nom_banque" ><?php echo $detailsLocataire['nom_banque']; ?></span></p>
+        <p>Code Postal de la Banque: <span id="cp_banque" ><?php echo $detailsLocataire['cp_banque']; ?></span></p>
+        <p>Téléphone de la Banque: <span id="tel_banque" ><?php echo $detailsLocataire['tel_banque']; ?></span></p>
         <!-- Ajoutez d'autres informations du locataire selon vos besoins -->
-        <button onclick="modifierloccataire()">Modifier</button>
+        <button onclick="modifierLocataire()">Modifier</button>
         <button onclick="supprimerLocataire()">supprimer</button>
     </div>
 </body>

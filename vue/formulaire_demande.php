@@ -22,7 +22,7 @@
 <body>
     <h1>Demande de Location</h1>
     <form method="POST" action="../controleur/traitement_demande_location.php">
-        <input type="hidden" name="num_appt" value="<?php echo isset($_GET['num_appt']) ? htmlspecialchars($_GET['num_appt']) : ''; ?>">
+        <input name="num_appt" value="<?php echo isset($_GET['num_appt']) ? htmlspecialchars($_GET['num_appt']) : ''; ?>">
 
         <label for="date_demande">Date de la demande :</label>
         <!-- Utilisation de PHP pour définir la valeur par défaut à la date d'aujourd'hui -->

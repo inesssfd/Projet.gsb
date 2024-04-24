@@ -9,7 +9,7 @@
 <body>
 <div class="container">
         <div class="form-container">
-<form method='POST' action='../controleur/connexion_loc.php' name='annuaire' enctype='application/x-www-form-urlencoded'>
+<form method='POST' action='../controleur/controleur_locc.php' name='annuaire' enctype='application/x-www-form-urlencoded'>
 <input type="hidden" name="action" value="connexion">
     <h1>Connexion</h1>
     <div class="input-wrapper">

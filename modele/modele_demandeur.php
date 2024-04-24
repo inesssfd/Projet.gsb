@@ -26,10 +26,35 @@ class demandeurs {
         $connexionDB = new ConnexionDB();
         $this->maConnexion = $connexionDB->get_connexion();
     }
+    public function setnom_demandeur($nom_demandeur) {
+        $this->nom_demandeur = $nom_demandeur;
+    }
+    public function setprenom_demandeur($prenom_demandeur) {
+        $this->prenom_demandeur = $prenom_demandeur;
+    }
     
-
-    // Accesseurs
-
+    public function setadresse_demandeur($adresse_demandeur) {
+        $this->adresse_demandeur = $adresse_demandeur;
+    }
+    
+    public function setcp_demandeur($cp_demandeur) {
+        $this->cp_demandeur = $cp_demandeur;
+    }
+    
+    public function settel_demandeur($tel_demandeur) {
+        $this->tel_demandeur = $tel_demandeur;
+    }
+    
+    public function setlogin($login) {
+        $this->login = $login;
+    }
+    
+    public function setmotdepasse_demandeur($motdepasse_demandeur) {
+        $this->motdepasse_demandeur = $motdepasse_demandeur;
+    }
+    public function getLastInsertId() {
+        return $this->maConnexion->lastInsertId();
+    }
 
     public function getnum_demandeur() {
         return $this->num_demandeur;
@@ -60,7 +85,7 @@ class demandeurs {
         return $this->motdepasse_demandeur;
     }
 
-
+    
     public function connexion($login, $motdepasse_demandeur) {
         try {
             $sql = "SELECT num_demandeur, motdepasse_demandeur FROM demandeurs WHERE login = :login";
@@ -78,32 +103,74 @@ class demandeurs {
             return false; // Gérez les exceptions ici
         }
     }
-public function inscription() {
-    // Hash du mot de passe
-    $hashedPassword = password_hash($this->motdepasse_demandeur, PASSWORD_DEFAULT);
-
-    $sql = "INSERT INTO demandeurs (nom_demandeur, prenom_demandeur, adresse_demandeur, cp_demandeur, tel_demandeur, login, motdepasse_demandeur) 
-            VALUES (:nom_demandeur, :prenom_demandeur, :adresse_demandeur, :cp_demandeur, :tel_demandeur, :login, :motdepasse_demandeur)";
-
-    try {
-        $stmt = $this->maConnexion->prepare($sql);
-        $stmt->bindParam(':nom_demandeur', $this->nom_demandeur);
-        $stmt->bindParam(':prenom_demandeur', $this->prenom_demandeur);
-        $stmt->bindParam(':adresse_demandeur', $this->adresse_demandeur);
-        $stmt->bindParam(':cp_demandeur', $this->cp_demandeur);
-        $stmt->bindParam(':tel_demandeur', $this->tel_demandeur);
-        $stmt->bindParam(':login', $this->login);
-        $stmt->bindParam(':motdepasse_demandeur', $hashedPassword); // Utilisation du mot de passe haché
-        $stmt->execute();
-
-        // Set the num_demandeur property after successful insertion
-        $this->num_demandeur = $this->maConnexion->lastInsertId();
-
-        return true; // Succès de l'insertion
-    } catch (PDOException $e) {
-        return false; // En cas d'erreur
+    public function champsNomPrenomValides() {
+        return preg_match("/^[a-zA-ZÀ-ÿ\s]+$/", $this->nom_demandeur) && preg_match("/^[a-zA-ZÀ-ÿ\s]+$/", $this->prenom_demandeur);
     }
-}
+
+    public function champsCpTelValides() {
+        return preg_match("/^\d+$/", $this->cp_demandeur) && preg_match("/^\d+$/", $this->tel_demandeur);
+    }
+    public function champsVides() {
+        return empty($this->nom_demandeur) || empty($this->prenom_demandeur) || empty($this->adresse_demandeur) || empty($this->cp_demandeur) || empty($this->tel_demandeur) || empty($this->login) || empty($this->motdepasse_demandeur);
+    }
+        public function inscription() {
+            $this->errors = []; 
+        
+            // Vérifier si tous les champs sont vides
+            if ($this->champsVides()) {
+                $this->errors[] = "Tous les champs doivent être remplis.";
+            }
+            
+            // Vérifier si les champs nom et prénom sont valides
+            if (!$this->champsNomPrenomValides()) {
+                $this->errors[] = "Les champs nom et prénom ne doivent contenir que des lettres et des espaces.";
+            }
+        
+            // Vérifier si les champs code postal et téléphone sont valides
+            if (!$this->champsCpTelValides()) {
+                $this->errors[] = "Les champs code postal et téléphone doivent contenir uniquement des chiffres.";
+            }
+        
+            // Si des erreurs sont présentes, retourner false
+            if (!empty($this->errors)) {
+                return false;
+            }
+        
+            // Hash du mot de passe
+            $hashedPassword = password_hash($this->motdepasse_demandeur, PASSWORD_DEFAULT);
+        
+            $sql = "INSERT INTO demandeurs (nom_demandeur, prenom_demandeur, adresse_demandeur, cp_demandeur, tel_demandeur, login, motdepasse_demandeur) 
+                    VALUES (:nom_demandeur, :prenom_demandeur, :adresse_demandeur, :cp_demandeur, :tel_demandeur, :login, :motdepasse_demandeur)";
+        
+            try {
+                $stmt = $this->maConnexion->prepare($sql);
+                $stmt->bindParam(':nom_demandeur', $this->nom_demandeur);
+                $stmt->bindParam(':prenom_demandeur', $this->prenom_demandeur);
+                $stmt->bindParam(':adresse_demandeur', $this->adresse_demandeur);
+                $stmt->bindParam(':cp_demandeur', $this->cp_demandeur);
+                $stmt->bindParam(':tel_demandeur', $this->tel_demandeur);
+                $stmt->bindParam(':login', $this->login);
+                $stmt->bindParam(':motdepasse_demandeur', $hashedPassword); // Utilisation du mot de passe haché
+                $stmt->execute();
+        
+                // Récupérer l'ID de la dernière insertion
+                $this->num_demandeur = $this->maConnexion->lastInsertId();
+        
+                return true; // Succès de l'insertion
+            } catch (PDOException $e) {
+                return false; // En cas d'erreur
+            }
+        }
+         public function redirigerAvecErreurs($errors) {
+            // Construire la chaîne de requête avec les erreurs
+            $errorString = implode("&", array_map(function($error) {
+                return "error[]=" . urlencode($error);
+            }, $errors));
+        
+            // Utiliser la chaîne de requête avec les erreurs dans la redirection
+            header("Location: ../vue/vue_inscription_demandeur.php?" . $errorString);
+            exit();
+        }
 
 public function supprimerDemandeur($num_demandeur) {
     try {
@@ -132,6 +199,9 @@ public function supprimerDemandeur($num_demandeur) {
     }
     public function modifierDemandeur($nouveauNom, $nouveauPrenom, $nouvelleAdresse, $nouveauCodePostal, $nouveauTelephone, $num_demandeur_connecte) {
         error_log('La fonction modifierdemadneru est appelée.');
+        echo "Requête SQL : "  . "<br>";
+        echo "Requête SQL : sdqdqs"  . "<br>";
+
         $connexionDB = new ConnexionDB(); // Correction de la faute de frappe ici
         $maConnexion = $connexionDB->get_connexion();
         

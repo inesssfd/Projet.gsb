@@ -1,12 +1,12 @@
 <?php
 include_once '../controleur/controleur_admin.php';
-$adminController = new AdminController();
-$data = $adminController->afficherVueAdmin();
+$data = afficherVueAdmin();
 $demandeurs = $data['demandeurs'];
 $proprietaires = $data['proprietaires'];
 $locataire = $data['locataire'];
 $appartement = $data['appartement'];
 $visite = $data['visite'];
+$chiffreAffairesTotal = $data['chiffreAffairesTotal']; 
 ?>
 
 <!DOCTYPE html>
@@ -17,7 +17,11 @@ $visite = $data['visite'];
     <title>Admin Page</title>
     <link rel="icon" type="image/x-icon" href="data:," />
     <link rel="stylesheet" href="../style/admin.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../style/script.js" defer></script>
+    <script src="../style/appartement.js" defer></script>
+    <script src="../style/proprietaire.js" defer></script>
+    <script src="../style/locataire.js" defer></script>
 </head>
 <body>
     <div class="tabs">
@@ -26,6 +30,9 @@ $visite = $data['visite'];
 <button class="tablink" onclick="openTab('locataires', event)">Tous les locataires</button>
 <button class="tablink" onclick="openTab('appartements', event)">Tous les appartements</button>
 <button class="tablink" onclick="openTab('visites', event)">Toutes les visites </button>
+<button class="tablink" onclick="openTab('chiffreAffaires', event)">Chiffre d'affaires</button>
+<a href="../modele/deconnexion.php" class="logout">Déconnexion</a>
+
 
     </div>
 
@@ -48,8 +55,8 @@ $visite = $data['visite'];
         <td contenteditable="true" id="cp_demandeur<?= $index ?>"><?= $demandeur['cp_demandeur'] ?></td>
         <td contenteditable="true" id="tel_demandeur<?= $index ?>"><?= $demandeur['tel_demandeur'] ?></td>
         <td contenteditable="true" id="login_demandeur<?= $index ?>"><?= $demandeur['login'] ?></td>
-        <button onclick="modifierDemandeurAdmin(<?= $index ?>)">Modifier</button>
-        <button onclick="supprimerDemandeur(<?= $demandeur['num_demandeur'] ?>)">Supprimer</button>
+        <td><button onclick="modifierDemandeurAdmin(<?= $index ?>)">Modifier</button></td>
+        <td><button onclick="supprimerDemandeur(<?= $demandeur['num_demandeur'] ?>)">Supprimer</button></td>
 
     </tr>
     <?php $index++; ?>
@@ -59,67 +66,70 @@ $visite = $data['visite'];
     </div>
 
     <div id="proprietaires" class="tabcontent">
-        <table>
-            <tr><th>id</th>
-                <th>Nom</th>
-                <th>Prénom</th>
-                <th>Adresse</th>
-                <th>Code Postal</th>
-                <th>Téléphone</th>
-                <th>Login</th>
+    <table>
+        <tr>
+            <th>id</th>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Adresse</th>
+            <th>Code Postal</th>
+            <th>Téléphone</th>
+            <th>Login</th>
+            <th>Actions</th>
+        </tr>
+        <?php foreach ($proprietaires as $index => $proprietaire) : ?>
+            <tr>         
+                <td><?= $proprietaire['numero_prop'] ?></td>       
+                <td contenteditable="true" id="nom_prop<?= $index ?>"><?= $proprietaire['nom_prop'] ?></td>
+                <td contenteditable="true" id="prenom_prop<?= $index ?>"><?= $proprietaire['prenom_prop'] ?></td>
+                <td contenteditable="true" id="adresse_prop<?= $index ?>"><?= $proprietaire['adresse_prop'] ?></td>
+                <td contenteditable="true" id="cp_prop<?= $index ?>"><?= $proprietaire['cp_prop'] ?></td>
+                <td contenteditable="true" id="tel_prop<?= $index ?>"><?= $proprietaire['tel_prop'] ?></td>
+                <td contenteditable="true" id="login_prop<?= $index ?>"><?= $proprietaire['login_prop'] ?></td>
+                <td>
+                    <button onclick="modifierProprietaireAdmin(<?= $index ?>)">Modifier</button></td>
+                    <button onclick="supprimerProprietaireAdmin(<?= $proprietaire['numero_prop'] ?>)">Supprimer</button>
+                </td>
             </tr>
-            <?php foreach ($proprietaires as $index => $proprietaire) : ?>
-    <tr>         
-    <td id="numero_prop<?= $index ?>"><?= $proprietaire['numero_prop'] ?></td>       
-        <td contenteditable="true" id="nom_prop<?= $index ?>"><?= $proprietaire['nom_prop'] ?></td>
-        <td contenteditable="true" id="prenom_prop<?= $index ?>"><?= $proprietaire['prenom_prop'] ?></td>
-        <td contenteditable="true" id="adresse_prop<?= $index ?>"><?= $proprietaire['adresse_prop'] ?></td>
-        <td contenteditable="true" id="cp_prop<?= $index ?>"><?= $proprietaire['cp_prop'] ?></td>
-        <td contenteditable="true" id="tel_prop<?= $index ?>"><?= $proprietaire['tel_prop'] ?></td>
-        
-        <td contenteditable="true" id="login_prop<?= $index ?>"><?= $proprietaire['login_prop'] ?></td>
-        <td>
-        <button onclick="supprimerProprietaireAdmin(<?= $proprietaire['numero_prop'] ?>)">Supprimer</button>
+        <?php endforeach; ?>
+    </table>
+</div>
+    
 
-        </td>
-    </tr>
-<?php endforeach; ?>
-
-        </table>
-    </div>
-    <div id="locataires" class="tabcontent">
-        <table>
+<div id="locataires" class="tabcontent">
+    <table>
+        <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Date de Naissance</th>
+            <th>Téléphone</th>
+            <th>Numéro Bancaire</th>
+            <th>Nom de Banque</th>
+            <th>Code Postal de Banque</th>
+            <th>Téléphone de Banque</th>
+            <th>Login</th>
+            <th>Actions</th>
+        </tr>
+        <?php $index = 0; ?>
+        <?php foreach ($locataire as $loc) : ?>
             <tr>
-                <th>Numéro de Locataire</th>
-                <th>Nom</th>
-                <th>Prénom</th>
-                <th>Date de Naissance</th>
-                <th>Téléphone</th>
-                <th>Numéro Bancaire</th>
-                <th>Nom de Banque</th>
-                <th>Code Postal de Banque</th>
-                <th>Téléphone de Banque</th>
-                <th>Login</th>
+                <td contenteditable="true" id="nom_loc<?= $index ?>"><?= $loc['nom_loc'] ?></td>
+                <td contenteditable="true" id="prenom_loc<?= $index ?>"><?= $loc['prenom_loc'] ?></td>
+                <td contenteditable="true" id="date_nais<?= $index ?>"><?= $loc['date_nais'] ?></td>
+                <td contenteditable="true" id="tel_loc<?= $index ?>"><?= $loc['tel_loc'] ?></td>
+                <td contenteditable="true" id="num_bancaire<?= $index ?>"><?= $loc['num_bancaire'] ?></td>
+                <td contenteditable="true" id="nom_banque<?= $index ?>"><?= $loc['nom_banque'] ?></td>
+                <td contenteditable="true" id="cp_banque<?= $index ?>"><?= $loc['cp_banque'] ?></td>
+                <td contenteditable="true" id="tel_banque<?= $index ?>"><?= $loc['tel_banque'] ?></td>
+                <td contenteditable="true" id="login_loc<?= $index ?>"><?= $loc['login_loc'] ?></td>
+                <td><button onclick="modifierLocataireAdmin(<?= $loc['num_loc'] ?>, <?= $index ?>)">Modifier</button></td>
+                <td><button onclick="supprimerLocataireAdmin(<?= $loc['num_loc'] ?>)">Supprimer</button></td>
             </tr>
-            <?php foreach ($locataire as $locataire) : ?>
-                <tr>
-                    <td><?= $locataire['num_loc'] ?></td>
-                    <td><?= $locataire['nom_loc'] ?></td>
-                    <td><?= $locataire['prenom_loc'] ?></td>
-                    <td><?= $locataire['date_nais'] ?></td>
-                    <td><?= $locataire['tel_loc'] ?></td>
-                    <td><?= $locataire['num_bancaire'] ?></td>
-                    <td><?= $locataire['nom_banque'] ?></td>
-                    <td><?= $locataire['cp_banque'] ?></td>
-                    <td><?= $locataire['tel_banque'] ?></td>
-                    <td><?= $locataire['login_loc'] ?></td>
-                    <td>
-                    <button onclick="supprimerLocataireAdmin(<?= $locataire['num_loc'] ?>)">Supprimer</button>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </table>
-    </div>
+            <?php $index++; ?>
+        <?php endforeach; ?>
+    </table>
+</div>
+
     <div id="appartements" class="tabcontent">
     <table>
         <tr>
@@ -179,7 +189,13 @@ $visite = $data['visite'];
             <?php endforeach; ?>
         </table>
     </div>
+    <div id="chiffreAffaires" class="tabcontent">
+    <h2>Chiffre d'affaires</h2>
+    <!-- Ajoutez ici le contenu relatif au chiffre d'affaires -->
+    <p>Chiffre d'affaires total : <?php echo $chiffreAffairesTotal; ?> €</p>
+</div>
 <script>
+
 function openTab(tabName, event) {
     // Cacher tous les onglets et désactiver tous les tablinks
     var tabcontent = document.getElementsByClassName("tabcontent");

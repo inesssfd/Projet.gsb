@@ -7,23 +7,34 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <!-- Appel de la feuille de style -->
     <link href="../style/style_appartement.css" type="text/css" rel="stylesheet" media="all">
+    <style>
+        .error-message {
+            color: red;
+        }
+    </style>
 </head>
 
 <body>
 <div class="container">
         <div class="form-container">
         <h1>Inscription Propriétaire</h1> <!-- Titre centré -->
-        <?php
-        // Afficher les messages d'erreur s'il y en a dans l'URL
-        if (isset($_GET['error'])) {
-            echo "<ul>";
-            foreach ($_GET['error'] as $error) {
-                echo "<li style='color: red;'>" . htmlspecialchars($error) . "</li>";
-            }
-            echo "</ul>";
-        }
-        ?>
-        <form method="POST" action="..\controleur\controleur_proprietaire.php" enctype="application/x-www-form-urlencoded">
+<form method="POST" action="../controleur/controleur_proprietaire.php" enctype="application/x-www-form-urlencoded">
+<?php
+$error = $_GET['error'] ?? ''; // Utilisation de l'opérateur de fusion null pour gérer le cas où $_GET['error'] n'est pas défini
+
+// Vérifier si $error est un tableau
+if (is_array($error)) {
+    // Gérer le cas où $error est un tableau
+    foreach ($error as $errorMessage) {
+        echo '<span class="error-message">Erreur: ' . $errorMessage . '</span><br>';
+    }
+} else {
+    // Gérer le cas où $error est une chaîne de caractères
+    if (strpos($error, 'nom_prop') !== false) {
+        echo '<span class="error-message">Erreur: ' . $error . '</span><br>';
+    }
+}
+?>
         <input type="hidden" name="action" value="inscription">
             <div class="input-wrapper">
                 <label for="nom_prop">Nom :</label>

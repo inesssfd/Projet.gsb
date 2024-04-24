@@ -6,21 +6,32 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <!-- Appel de la feuille de style (laissez l'attribut href vide si vous n'avez pas encore de feuille de style) -->
     <link href="../style/style_appartement.css" type="text/css" rel="stylesheet" media="all">
+    <style>
+        .error-message {
+            color: red;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
         <div class="form-container">
         <h1>Inscription demandeur</h1>
         <?php
-        // Afficher les messages d'erreur s'il y en a dans l'URL
-        if (isset($_GET['error'])) {
-            echo "<ul>";
-            foreach ($_GET['error'] as $error) {
-                echo "<li style='color: red;'>" . htmlspecialchars($error) . "</li>";
+            $error = $_GET['error'] ?? ''; // Utilisation de l'opérateur de fusion null pour gérer le cas où $_GET['error'] n'est pas défini
+
+            // Vérifier si $error est un tableau
+            if (is_array($error)) {
+                // Gérer le cas où $error est un tableau
+                foreach ($error as $errorMessage) {
+                    echo '<span class="error-message">Erreur: ' . $errorMessage . '</span><br>';
+                }
+            } else {
+                // Gérer le cas où $error est une chaîne de caractères
+                if (strpos($error, 'nom_prop') !== false) {
+                    echo '<span class="error-message">Erreur: ' . $error . '</span><br>';
+                }
             }
-            echo "</ul>";
-        }
-        ?>
+            ?>
         <form method="POST" action="..\controleur\controleur_demandeurs.php" enctype="application/x-www-form-urlencoded">
             <input type="hidden" name="action" value="inscription"> <!-- Champ caché pour spécifier l'action d'inscription -->
             <div class="input-wrapper">

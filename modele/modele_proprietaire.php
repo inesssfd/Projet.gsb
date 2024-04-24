@@ -28,7 +28,27 @@ class proprietaire {
         // Ajoutez cette ligne pour initialiser $this->numero_prop
         $this->numero_prop = null; // Vous pouvez définir la valeur par défaut que vous préférez
     }
-
+    public function setNomProp($nom_prop) {
+        $this->nom_prop = $nom_prop;
+    }
+    public function setPrenomProp($prenom_prop) {
+        $this->prenom_prop = $prenom_prop;
+    }
+    public function setAdresseProp($adresse_prop) {
+        $this->adresse_prop = $adresse_prop;
+    }
+    public function setCpProp($cp_prop) {
+        $this->cp_prop = $cp_prop;
+    }
+    public function setTelProp($tel_prop) {
+        $this->tel_prop = $tel_prop;
+    }
+    public function setLoginProp($login_prop) {
+        $this->login_prop = $login_prop;
+    }
+    public function setMotdepassePro($motdepasse_pro) {
+        $this->motdepasse_pro = $motdepasse_pro;
+    }
     public function getLoginProp() {
         return $this->login_prop;
     }
@@ -39,7 +59,48 @@ class proprietaire {
     public function getnom_prop() {
         return $this->nom_prop;
     }
+  public  function champsVides() {
+    error_log("Méthode champsVides appelée.");
+        return empty($_POST['nom_prop']) || empty($_POST['prenom_prop']) || empty($_POST['adresse_prop']) || empty($_POST['cp_prop']) || empty($_POST['tel_prop']) || empty($_POST['login_prop']) || empty($_POST['motdepasse_pro']);
+    }
+    
+    public function champsNomPrenomValides() {
+        error_log("Méthode champsVides appelée.");
+        return preg_match("/^[a-zA-ZÀ-ÿ\s]+$/", $_POST['nom_prop']) && preg_match("/^[a-zA-ZÀ-ÿ\s]+$/", $_POST['prenom_prop']);
+    }
+    
+    public function champsCpTelValides() {
+        error_log("Méthode champsVides appelée.");
+        return preg_match("/^\d+$/", $_POST['cp_prop']) && preg_match("/^\d+$/", $_POST['tel_prop']);
+    }
     public function inscription() {
+        $this->errors = []; 
+    
+        // Vérifier si tous les champs sont vides
+        if ($this->champsVides()) {
+            $this->errors[] = "Tous les champs doivent être remplis.";
+        }
+        
+        // Vérifier si les champs nom et prénom sont valides
+        if (!$this->champsNomPrenomValides()) {
+            $this->errors[] = "Les champs nom et prénom ne doivent contenir que des lettres et des espaces.";
+        }
+    
+        // Vérifier si les champs code postal et téléphone sont valides
+        if (!$this->champsCpTelValides()) {
+            $this->errors[] = "Les champs code postal et téléphone doivent contenir uniquement des chiffres.";
+        }
+    
+        // Vérifier si le login existe déjà
+        if ($this->loginExiste($_POST['login_prop'])) {
+            $this->errors[] = "Ce login est déjà utilisé. Veuillez en choisir un autre.";
+        }
+    
+        // Si des erreurs sont présentes, retourner false
+        if (!empty($this->errors)) {
+            return false;
+        }
+    
         // Hash du mot de passe
         $hashedPassword = password_hash($this->motdepasse_pro, PASSWORD_DEFAULT);
     
@@ -62,6 +123,17 @@ class proprietaire {
         } catch (PDOException $e) {
             return false; // In case of error
         }
+    }
+    
+    function redirigerAvecErreurs() {
+        // Construire la chaîne de requête avec les erreurs
+        $errorString = implode("&", array_map(function($error) {
+            return "error[]=" . urlencode($error);
+        }, $this->errors));
+    
+        // Utiliser la chaîne de requête avec les erreurs dans la redirection
+        header("Location: ../vue/vue_inscription_proprietaire.php?" . $errorString);
+        exit();
     }
     
     public function loginExiste($login_prop) {
@@ -122,9 +194,9 @@ class proprietaire {
         }
     
 }
-public function modifierPropriétaire($nouveauNom, $nouveauPrenom, $nouvelleAdresse, $nouveauCodePostal, $nouveauTelephone, $nouveauLogin, $num_proprietaire_connecte) {
+public function modifierPropriétaire($nouveauNom, $nouveauPrenom, $nouvelleAdresse, $nouveauCodePostal, $nouveauTelephone, $num_proprietaire_connecte) {
     echo "Paramètres reçus dans la méthode de la classe : ";
-    var_dump($nouveauNom, $nouveauPrenom, $nouvelleAdresse, $nouveauCodePostal, $nouveauTelephone, $nouveauLogin, $num_proprietaire_connecte);
+    var_dump($nouveauNom, $nouveauPrenom, $nouvelleAdresse, $nouveauCodePostal, $nouveauTelephone, $num_proprietaire_connecte);
     $connexionDB = new ConnexionDB();
     $maConnexion = $connexionDB->get_connexion();
 
@@ -140,7 +212,6 @@ public function modifierPropriétaire($nouveauNom, $nouveauPrenom, $nouvelleAdre
         if ($nouvelleAdresse !== null) $updateFields[] = "adresse_prop = :nouvelleAdresse";
         if ($nouveauCodePostal !== null) $updateFields[] = "cp_prop = :nouveauCodePostal";
         if ($nouveauTelephone !== null) $updateFields[] = "tel_prop = :nouveauTelephone";
-        if ($nouveauLogin !== null) $updateFields[] = "login_prop = :nouveauLogin";
 
         $sql .= implode(", ", $updateFields);
         $sql .= " WHERE numero_prop = :num_proprietaire_connecte"; // Correction ici
@@ -154,7 +225,6 @@ public function modifierPropriétaire($nouveauNom, $nouveauPrenom, $nouvelleAdre
             if ($nouvelleAdresse !== null) $stmt->bindParam(':nouvelleAdresse', $nouvelleAdresse);
             if ($nouveauCodePostal !== null) $stmt->bindParam(':nouveauCodePostal', $nouveauCodePostal);
             if ($nouveauTelephone !== null) $stmt->bindParam(':nouveauTelephone', $nouveauTelephone);
-            if ($nouveauLogin !== null) $stmt->bindParam(':nouveauLogin', $nouveauLogin);
 
             // Ajoutez la liaison pour le numéro du propriétaire connecté
             $stmt->bindParam(':num_proprietaire_connecte', $num_proprietaire_connecte);
@@ -175,6 +245,7 @@ public function modifierPropriétaire($nouveauNom, $nouveauPrenom, $nouvelleAdre
         return false;
     }
 }
+
 
 
 
@@ -241,6 +312,7 @@ public function getLoyerTotalParProprietaire($numero_prop) {
         return false;
     }
 }
+
 public function getAllProprietaire() {
     try {
         $connexionDB = new ConnexionDB();
@@ -259,6 +331,74 @@ public function getAllProprietaire() {
         return false;
     }
 }
+public function modifierProprietaireAdminmodele($numero_prop, $nom, $prenom, $adresse, $cp, $tel, $login) {
+    $connexionDB = new ConnexionDB();
+    $pdo = $connexionDB->get_connexion();
+    
+    try {
+        // Prépare la requête SQL
+        $sql = "UPDATE proprietaire SET nom_prop = ?, prenom_prop = ?, adresse_prop = ?, cp_prop = ?, tel_prop = ?, login_prop = ? WHERE numero_prop = ?";
+        
+        // Affichage de la requête SQL pour le débogage
+        echo "Requête SQL : " . $sql . "<br>";
+
+        $statement = $pdo->prepare($sql);
+
+        // Lie les valeurs aux paramètres de la requête
+        $statement->bindParam(1, $nom);
+        $statement->bindParam(2, $prenom);
+        $statement->bindParam(3, $adresse);
+        $statement->bindParam(4, $cp);
+        $statement->bindParam(5, $tel);
+        $statement->bindParam(6, $login);
+        $statement->bindParam(7, $numero_prop);
+
+        // Affichage des valeurs des paramètres pour le débogage
+        echo "Paramètres : ";
+        var_dump([$nom, $prenom, $adresse, $cp, $tel, $login, $numero_prop]);
+
+        // Exécute la requête
+        $statement->execute();
+
+        // Vérifie si la requête a réussi
+        if ($statement->rowCount() > 0) {
+            return true; // Modification réussie
+        } else {
+            return false; // Aucune modification effectuée
+        }
+    } catch (PDOException $e) {
+        // Affichage de l'erreur pour le débogage
+        echo "Erreur lors de la modification du propriétaire : " . $e->getMessage();
+        throw new Exception("Erreur lors de la modification du propriétaire : " . $e->getMessage());
+    }
+}
+
+
+public function getChiffreAffairesTotal() {
+    $connexionDB = new ConnexionDB();
+    $pdo = $connexionDB->get_connexion();
+    
+    try {
+        $sql = "
+        SELECT 
+            SUM(a.prix_loc + a.prix_charge) AS loyer_total
+        FROM appartement a;
+    ";
+    
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['loyer_total']; // Retourne le chiffre d'affaires total pour tous les propriétaires
+    } catch (PDOException $e) {
+        // Gérez les erreurs ici si nécessaire
+        echo "Erreur : " . $e->getMessage();
+        return false;
+    }
+}
+
+
+
 }
 // Vous n'avez pas besoin de cette accolade supplémentaire
 ?>

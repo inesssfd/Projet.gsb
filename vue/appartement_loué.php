@@ -1,15 +1,22 @@
 <?php
 session_start();
-if (!isset($_SESSION['num_demandeur'])) {
+if (!isset($_SESSION['num_demandeur']) && !isset($_SESSION['numero_prop'])) {
+    // Redirection vers la page de connexion
     header("Location: ../index.php");
     exit;
 }
-include_once '../controleur/controleur_demandeurs.php';
-include_once '../controleur/traitement_demande_location.php';
+include_once '../controleur/controleur_visite.php';
+include_once '../controleur/affichage_demande.php';
+// Récupérer le numéro du demandeur connecté depuis la session
 $num_demandeur_connecte = isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : null;
-$profil_demandeur = $demandeurs->getDemandeurById($num_demandeur_connecte);
-$visites_prevues = getVisitesByDemandeur($num_demandeur_connecte);
+
+// Récupérer le profil du demandeur connecté
+$profil_demandeur = (new demandeurs())->getDemandeurById($num_demandeur_connecte);
+
+// Récupérer les visites prévues par le demandeur connecté
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +33,7 @@ $visites_prevues = getVisitesByDemandeur($num_demandeur_connecte);
         <li><a href="v_acceuil_demandeur.php">Accueil</a></li>
         <li><a href="appartement_loué.php">visite et profil du Demandeur</a></li>
         <div>Bienvenue, <?php echo (isset($_SESSION['login']) ? $_SESSION['login'] : 'Invité'); ?> | 
-    Numéro du demandeur : <?php echo (isset($_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : 'Invité'); ?> | 
+    Numéro du demandeur : <?php echo ((isset($_SESSION['num_demandeur']) && $_SESSION['num_demandeur']) ? $_SESSION['num_demandeur'] : 'Invité'); ?> | 
     <a href="../modele/deconnexion.php">Déconnexion</a>
 </div>
     </ul>
@@ -43,48 +50,43 @@ $visites_prevues = getVisitesByDemandeur($num_demandeur_connecte);
     <button onclick="modifierDemandeur()">Modifier</button>
 </div>
 
-<div id="visites" class="cbody">
-    <h2>Visites Prévues</h2>
-    <?php
-$count = 1; // Counter to add classes dynamically
-foreach ($visites_prevues as $visite_prevue) {
-    $apartmentClass = 'apartment' . $count; // Dynamic class name
-    echo "<div class='visite $apartmentClass'>";
-    echo "<p> Date de visite : " . $visite_prevue['date_visite'] . " Appartement : " . $visite_prevue['num_appt'] . "</p>";
-   
-    // Vérifier si la visite est une demande de location
-    $demande = getDemandeByDemandeurAndAppt($_SESSION['num_demandeur'], $visite_prevue['num_appt']);
+<h1>Visites et demandes du demandeur</h1>
+<?php if ($visites || $demandes): ?>
+    <?php foreach ($visites as $visite): ?>
+        <div class="visite">
+            <p>ID Visite: <?php echo $visite['id_visite']; ?></p>
+            <p>Appartement: <?php echo $visite['num_appt']; ?></p>
+            <p>Date: <?php echo $visite['date_visite']; ?></p>
+            <button onclick="supprimerVisite(<?php echo $visite['id_visite']; ?>)">Supprimer visite</button>
+            <button onclick="modifierDate(<?php echo $visite['id_visite']; ?>, '<?php echo $visite['date_visite']; ?>')">Modifier visite</button>
+            <a class="link-button" href="formulaire_demande.php?num_appt=<?php echo $visite['num_appt']; ?>&num_demandeur=<?php echo $num_demandeur_connecte; ?>">Faire une demande de location</a>
 
-    if ($demande) {
-        if ($demande['etat_demande'] !== 'Refusée') { // Vérifie si la demande n'est pas refusée
-            // Si une demande existe et n'est pas refusée, afficher l'état de la demande et sa date
-            echo "<p>Statut de la demande : " . $demande['etat_demande'] . "</p>";
-            echo "<p>Date de la demande : " . $demande['date_demande'] . "</p>";
-            if ($demande['etat_demande'] === 'En attente') {
-                // Si l'état de la demande est "En attente", n'afficher pas le bouton "Devenir locataire"
-                echo "<p>Vous avez une demande en attente pour cet appartement.</p>";
-            } else {
-                // Sinon, afficher l'état de la demande et sa date ainsi que le bouton "Devenir locataire"
-                echo "<a class=\"link-button\" href=\"formulaire_location.php?num_appt=" . $visite_prevue['num_appt'] . "&num_demandeur=" . $num_demandeur_connecte . "\">Devenir locataire</a>";
-            }
-        } else {
-            echo "<button onclick=\"supprimerDemande(" . $demande['id_demandes_location'] . ")\">Supprimer demande</button>";
-            echo "<p>Statut de la demande : Refusée</p>";
-            echo "<p>Cette demande a été refusée.</p>";
-        }
-    } else {
-        // Si aucune demande n'existe, afficher les boutons "Modifier visite" et "Supprimer visite"
-        echo "<button onclick=\"supprimerVisite(" . $visite_prevue['id_visite'] . ")\">Supprimer visite</button>";
-        echo "<button onclick=\"modifierDate(" . $visite_prevue['id_visite'] . ", '" . $visite_prevue['date_visite'] . "')\">Modifier visite</button>";
-        echo "<a class=\"link-button\" href=\"formulaire_demande.php?num_appt=" . $visite_prevue['num_appt'] . "&num_demandeur=" . $num_demandeur_connecte . "\">Faire une demande de location</a>";
-    }
-    
-    echo "</div>";
-    $count++;
-}
-?>
+        </div>
+    <?php endforeach; ?>
+    <?php foreach ($demandes as $demande): ?>
+        <div class="visite">
+            <p>ID Demande: <?php echo $demande['id_demandes_location']; ?></p>
+            <p>Appartement: <?php echo $demande['num_appt']; ?></p>
+            <p>Date de la demande: <?php echo $demande['date_demande']; ?></p>
+            <!-- Afficher l'état de la demande -->
+            <?php if ($demande['etat_demande'] == 'En attente'): ?>
+                <p>État de la demande: En attente (<?php echo $demande['date_demande']; ?>)</p>
+            <?php elseif ($demande['etat_demande'] == 'Acceptée'): ?>
+                <p>État de la demande: Acceptée</p>
+                <a class="link-button" href="formulaire_location.php?num_appt=<?php echo $demande['num_appt']; ?>&num_demandeur=<?php echo $num_demandeur_connecte; ?>">Devenir locataire</a>
+            <?php elseif ($demande['etat_demande'] == 'Refusée'): ?>
+                <p>État de la demande: Refusée</p>
+                <button onclick="supprimerDemande(<?php echo $demande['id_demandes_location']; ?>)">Supprimer la demande</button>
+            <?php endif; ?>
+        </div>
+    <?php endforeach; ?>
+<?php else: ?>
+    <p>Aucune visite ou demande trouvée pour le demandeur avec le numéro : <?php echo $num_demandeur_connecte; ?></p>
+<?php endif; ?>
 
-    
+
+
 </div>
+
 </body>
 </html>

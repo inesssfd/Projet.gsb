@@ -1,107 +1,85 @@
 <?php
+// Vérifier si la session n'est pas déjà démarrée
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+// Inclure le fichier contenant la définition de la classe Visite
 include_once '..\modele\modele_visite.php';
 
+// Traiter les données envoyées via la méthode POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Assurez-vous d'avoir les données nécessaires du formulaire
-        var_dump($_POST); // Ajoutez cette ligne pour déboguer
-        $donneesVisite = array(
-            'num_demandeur' => isset($_POST['num_demandeur']) ? intval($_POST['num_demandeur']) : 0,
-            'date_visite' => $_POST['date_visite'],
-            'num_appt' => isset($_POST['num_appt']) ? intval($_POST['num_appt']) : 0
-        );
+        // Vérifier si les données du formulaire sont présentes
+        if (isset($_POST['num_demandeur'], $_POST['date_visite'], $_POST['num_appt'])) {
+            // Récupérer les données du formulaire
+            $num_demandeur = intval($_POST['num_demandeur']);
+            $date_visite = $_POST['date_visite'];
+            $num_appt = intval($_POST['num_appt']);
 
-        // Output the values for debugging
-        echo "Debug - num_demandeur: " . $donneesVisite['num_demandeur'] . "<br>";
-        echo "Debug - date_visite: " . $donneesVisite['date_visite'] . "<br>";
-        echo "Debug - num_appt: " . $donneesVisite['num_appt'] . "<br>";
-
-        // Création d'une instance de la classe Visite
-        $visite = new Visite(
-            '?', // id_visite
-            $donneesVisite['num_demandeur'],
-            $donneesVisite['date_visite'],
-            $donneesVisite['num_appt']
-        );
-
-        traiterVisite($visite);
-
-    } catch (PDOException $e) {
-        echo "Erreur PDO lors de la préparation ou de l'exécution de la requête : " . $e->getMessage();
-        return false;
-    }
-}
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if ($_POST['action'] === 'deleteVisit') {
-        // Récupérez l'identifiant de la visite à supprimer
-        $id_visite = $_POST['id_visite'];
-        
-        // Ajoutez un message de débogage pour vérifier l'action
-        echo "Action de suppression de visite détectée. ID de visite : $id_visite";
-
-        // Suppression de la visite
-        supprimerVisite($id_visite);
-    }
-}
-function modifierDateVisite($id_visite, $nouvelle_date) {
-    try {
-        // Créez une instance de la classe Visite
-        $visite = new Visite();
-        
-        // Appelez la fonction pour mettre à jour la date de visite
-        $resultat = $visite->updateDateVisite($id_visite, $nouvelle_date);
-
-        // Envoyez une réponse au client
-        echo $resultat ? 'Mise à jour réussie' : 'Échec de la mise à jour';
-        exit(); // Assurez-vous de terminer le script ici
-    } catch (PDOException $e) {
-        echo "Erreur PDO lors de la préparation ou de l'exécution de la requête : " . $e->getMessage();
-        return false;
-    }
-}
-
-function traiterVisite($visite) {
-    try {
-        // Vérifier si la date de visite est antérieure à la date actuelle
-        $date_visite = $visite->getDateVisite();
-        $date_actuelle = date('Y-m-d'); // Obtenez la date actuelle au format 'AAAA-MM-JJ'
-
-        if ($date_visite < $date_actuelle) {
-            echo "La date de visite ne peut pas être antérieure à la date actuelle.";
-            return; // Arrêtez le traitement de la visite
-        }
-
-        // La date de visite est valide, procédez au traitement
-        if ($visite->visiter()) {
-            header('Location:../vue/appartement_loué.php');
-            exit;
+            // Appeler la méthode statique du modèle pour traiter la visite
+            $message_traitement = Visite::traiterVisite($num_demandeur, $date_visite, $num_appt);
+            
+            // Afficher le message de retour
+            echo $message_traitement;
         } else {
-            echo "Erreur lors de l'ajout de la visite.";
+            echo "Veuillez remplir tous les champs du formulaire.";
         }
     } catch (PDOException $e) {
-        echo "Erreur PDO : " . $e->getMessage();
-    } catch (Exception $e) {
-        echo "Erreur PHP : " . $e->getMessage();
-    }
-}
-
-function supprimerVisite($id_visite) {
-    try {
-        // Créez une instance de la classe Visite
-        $visite = new Visite();
-        
-        // Appelez la fonction pour supprimer la visite
-        $resultat = $visite->supprimerVisite($id_visite);
-
-        // Envoyez une réponse au client
-        echo $resultat ? 'Suppression réussie' : 'Échec de la suppression';
-        exit(); // Assurez-vous de terminer le script ici
-    } catch (PDOException $e) {
         echo "Erreur PDO lors de la préparation ou de l'exécution de la requête : " . $e->getMessage();
-        return false;
     }
 }
+// Traiter la modification de la date de visite
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'modifyVisitDate') {
+    // Vérifier si les données requises sont présentes
+    if (isset($_POST['id_visite'], $_POST['nouvelle_date_visite'])) {
+        // Récupérer les données de la requête
+        $id_visite = intval($_POST['id_visite']);
+        $nouvelle_date_visite = $_POST['nouvelle_date_visite'];
+
+        // Créer une instance du modèle Visite
+        $modeleVisite = new Visite();
+
+        // Appeler la fonction pour modifier la date de visite
+        $resultat = $modeleVisite->modifierDateVisite($id_visite, $nouvelle_date_visite);
+
+        // Vérifier si la modification a réussi
+        if ($resultat) {
+            echo "Modification de la date de visite réussie.";
+        } else {
+            echo "Échec de la modification de la date de visite.";
+        }
+    } else {
+        echo "Veuillez fournir l'identifiant de la visite et la nouvelle date de visite.";
+    }
+}
+
+
+// Traiter l'action de suppression de visite
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'deleteVisit') {
+echo"laaaa";
+    if (isset($_POST['id_visite'])) {
+        // Récupérer l'identifiant de la visite à supprimer
+        $id_visite = intval($_POST['id_visite']);
+
+        // Créer une instance du modèle Visite
+        $modèleVisite = new Visite();
+
+        // Appeler la fonction pour supprimer la visite
+        $resultat = $modèleVisite->supprimerVisite($id_visite);
+
+        // Envoyer une réponse au client
+        echo $resultat ? 'Suppression réussie' : 'Échec de la suppression';
+        exit(); // Terminer le script
+    } else {
+        echo "L'identifiant de la visite à supprimer est manquant.";
+    }
+}
+$num_demandeur = $_GET['num_demandeur']; // Supposons que le numéro du demandeur soit passé dans l'URL
+
+// Créer une instance de la classe Visite
+$visite = new Visite();
+
+// Appeler la fonction pour récupérer les visites du demandeur
+$visites = $visite->getVisitesByDemandeur($num_demandeur);
 ?>

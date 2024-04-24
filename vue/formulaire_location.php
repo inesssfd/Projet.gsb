@@ -45,7 +45,7 @@ if (!isset($_SESSION['num_demandeur'])) {
         }
         ?>
         <form method="POST" action="../controleur/controleur_locc.php" enctype="application/x-www-form-urlencoded">
-        <input type="hidden" name="action" value="traiterInscription">
+        <input type="hidden" name="action" value="inscription">
                         <div class="input-wrapper">
                 <label for="prenom_loc">Prénom:</label>
                 <input type="text" id="prenom_loc" name="prenom_loc" value="<?php echo isset($_SESSION['prenom_demandeur']) ? htmlspecialchars($_SESSION['prenom_demandeur']) : ''; ?>" required>
